@@ -1,0 +1,29 @@
+.user-layout {
+  display: flex;
+  min-height: calc(100vh - 75px);
+  background-color: #f4f7fb;
+  width: 100%;
+  overflow-x: hidden; /* Empêche le scroll horizontal global */
+}
+
+.user-content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: calc(100vh - 75px);
+  box-sizing: border-box; /* Garde le padding à l'intérieur */
+  width: 100%;
+}
+
+/* --- RESPONSIVITÉ MOBILE --- */
+@media (max-width: 768px) {
+  .user-layout {
+    flex-direction: column;
+  }
+  .user-content {
+    height: auto;
+    overflow-y: visible;
+    padding: 1rem;
+  }
+}

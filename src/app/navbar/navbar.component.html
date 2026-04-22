@@ -1,0 +1,301 @@
+<!-- src/app/navbar/navbar.component.html -->
+<nav class="navbar">
+  <div class="navbar-container">
+
+    <!-- Zone gauche : Burger + Logo -->
+    <div class="navbar-left">
+      <button class="navbar-burger" type="button" *ngIf="showBurger" (click)="toggleSidebar()">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+
+      <div class="navbar-logo">
+        <a class="logo-link">
+          <div class="logo-container">
+            <img src="assets/logo.png" alt="Wind Consulting" class="logo-image" />
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Profile à droite -->
+    <div class="navbar-profile">
+      <button class="profile-btn" (click)="toggleProfileMenu()">
+        <div class="profile-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
+        <span class="profile-name">{{ userName }}</span>
+      </button>
+
+      <div class="profile-dropdown" *ngIf="showProfileMenu">
+        <div class="dropdown-header">
+          <div class="dropdown-avatar">{{ userName.charAt(0).toUpperCase() }}</div>
+          <div class="dropdown-info">
+            <div class="dropdown-name">{{ userName }}</div>
+            <div class="dropdown-role">
+              {{ (userType === 'SUPER_ADMIN' || currentUser?.role === 'ADMIN') ? 'Super Admin' : (userType === 'ENTREPRISE' ? 'Administrateur' : 'Utilisateur') }}
+            </div>
+          </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" (click)="openProfileModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          Mon Profil
+        </a>
+        <a class="dropdown-item" (click)="openSettingsModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M12 1v6m0 6v6"></path>
+          </svg>
+          Paramètres
+        </a>
+        <div class="dropdown-divider"></div>
+        <button class="dropdown-item logout-item" (click)="logout()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          Déconnexion
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="overlay" *ngIf="showProfileMenu" (click)="closeProfileMenu()"></div>
+
+<div class="modal-overlay" *ngIf="showProfileModal || showSettingsModal" (click)="closeProfileModal(); closeSettingsModal()"></div>
+
+<!-- 1. MODAL MON PROFIL -->
+<!-- 1. MODAL MON PROFIL -->
+<div class="custom-modal" *ngIf="showProfileModal">
+  <button class="close-modal-btn" (click)="closeProfileModal()">✕</button>
+  <div class="modal-header">
+    <div class="dropdown-avatar modal-avatar">{{ userName.charAt(0).toUpperCase() }}</div>
+    <h2 class="modal-title">Mon Profil</h2>
+    <span class="modal-badge">{{ (userType === 'SUPER_ADMIN' || currentUser?.role === 'ADMIN') ? 'Super Admin' : (userType === 'ENTREPRISE' ? 'Administrateur' : 'Utilisateur') }}</span>
+  </div>
+  <div class="modal-body">
+    <ng-container *ngIf="userType === 'ENTREPRISE'">
+      <div class="info-group"><label>Nom de l'entreprise</label><p>{{ currentUser?.nom }}</p></div>
+      <div class="info-group"><label>Matricule Fiscale</label><p>{{ currentUser?.matriculeFiscale }}</p></div>
+      <div class="info-group"><label>Email de contact</label><p>{{ currentUser?.email }}</p></div>
+      <div class="info-group"><label>Téléphone</label><p>{{ currentUser?.telephone }}</p></div>
+      <div class="info-row">
+        <div class="info-group"><label>Pays</label><p>{{ currentUser?.gouvernorat }}</p></div>
+        <div class="info-group"><label>Adresse</label><p>{{ currentUser?.ville }}</p></div>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="userType === 'USER' && currentUser?.role !== 'ADMIN'">
+      <div class="info-group"><label>Nom complet</label><p>{{ currentUser?.nom }}</p></div>
+      <div class="info-group"><label>Email</label><p>{{ currentUser?.email }}</p></div>
+      <div class="info-row">
+        <div class="info-group"><label>Entreprise</label><p>{{ currentUser?.entrepriseNom || 'Non spécifiée' }}</p></div>
+        <div class="info-group"><label>Département</label><p>{{ currentUser?.departement || 'Non spécifié' }}</p></div>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="userType === 'SUPER_ADMIN' || currentUser?.role === 'ADMIN'">
+      <div class="info-group"><label>Nom complet</label><p>{{ currentUser?.nom }}</p></div>
+      <div class="info-group"><label>Email</label><p>{{ currentUser?.email }}</p></div>
+    </ng-container>
+  </div>
+</div>
+
+<!-- 2. MODAL PARAMÈTRES -->
+<div class="custom-modal settings-modal" *ngIf="showSettingsModal">
+  <button class="close-modal-btn" (click)="closeSettingsModal()">✕</button>
+
+  <div class="modal-header">
+    <div class="modal-icon"></div>
+    <h2 class="modal-title">Paramètres</h2>
+    <p class="modal-subtitle">Gérez vos informations et sécurité</p>
+  </div>
+
+  <!-- ONGLETS -->
+  <div class="settings-tabs">
+    <button class="settings-tab" [class.active]="settingsTab === 'info'" (click)="settingsTab = 'info'; clearAlerts()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      Informations
+    </button>
+    <button class="settings-tab" [class.active]="settingsTab === 'password'" (click)="settingsTab = 'password'; clearAlerts()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+      Mot de passe
+    </button>
+  </div>
+
+  <div class="modal-body">
+
+    <!-- ===== ONGLET INFORMATIONS ===== -->
+    <ng-container *ngIf="settingsTab === 'info'">
+
+      <!-- ENTREPRISE : téléphone, pays, adresse -->
+      <ng-container *ngIf="userType === 'ENTREPRISE'">
+        <div class="form-group">
+          <label>Téléphone</label>
+          <ngx-intl-tel-input
+            [cssClass]="'custom-phone-input'"
+            [preferredCountries]="preferredCountries"
+            [enableAutoCountrySelect]="true"
+            [enablePlaceholder]="true"
+            [searchCountryFlag]="true"
+            [searchCountryField]="[SearchCountryField.Iso2, SearchCountryField.Name]"
+            [selectFirstCountry]="false"
+            [selectedCountryISO]="CountryISO.Tunisia"
+            [maxLength]="15"
+            [phoneValidation]="true"
+            [separateDialCode]="true"
+            name="editTelephone"
+            [(ngModel)]="editTelephone"
+            (ngModelChange)="onPhoneChange($event)"
+            #editPhoneCtrl="ngModel"
+            [class.phone-valid]="editPhoneCtrl.valid && editTelephone"
+            [class.phone-error]="editPhoneCtrl.invalid && (editPhoneCtrl.touched || editTelephone)">
+          </ngx-intl-tel-input>
+          <div class="confirm-hint" *ngIf="editPhoneCtrl.invalid && (editPhoneCtrl.touched || editTelephone)">
+            <span class="hint-fail">✗ Numéro invalide pour ce pays</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Pays</label>
+            <div class="country-dropdown-wrapper-settings" (click)="$event.stopPropagation()">
+              <div class="country-select-trigger-s"
+                   [class.open]="countryDropdownOpenS"
+                   (click)="countryDropdownOpenS = !countryDropdownOpenS; countrySearchS = ''; filteredCountriesS = countriesListS">
+                <span *ngIf="editGouvernorat" style="font-size:1.1rem; flex-shrink:0;">{{ getFlagForCountry(editGouvernorat) }}</span>
+                <span class="country-name-s">{{ editGouvernorat || 'Choisir un pays' }}</span>
+                <span class="country-arrow-s" [class.rotated]="countryDropdownOpenS">▾</span>
+              </div>
+              <div class="country-panel-s" *ngIf="countryDropdownOpenS">
+                <input type="text" class="country-search-s" [(ngModel)]="countrySearchS"
+                       (ngModelChange)="filterCountriesS()"
+                       placeholder="Rechercher..."
+                       (click)="$event.stopPropagation()" />
+                <div class="country-list-s">
+                  <div class="country-opt-s" *ngFor="let c of filteredCountriesS"
+                       [class.selected]="editGouvernorat === c.name"
+                       (click)="editGouvernorat = c.name; countryDropdownOpenS = false">
+                    <span class="opt-flag-s">{{ c.flag }}</span>
+                    <span>{{ c.name }}</span>
+                  </div>
+                  <div class="no-result-s" *ngIf="filteredCountriesS.length === 0">Aucun résultat</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Adresse</label>
+            <input type="text" class="modal-input" [(ngModel)]="editVille" placeholder="Ex: Tunis Centre"
+                   [class.input-valid]="editVille.trim().length > 0"
+                   [class.input-invalid]="false" />
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- USER : nom uniquement -->
+      <ng-container *ngIf="userType === 'USER' && currentUser?.role !== 'ADMIN' || userType === 'SUPER_ADMIN'">
+        <div class="form-group">
+          <label>Nom complet</label>
+          <input type="text" class="modal-input" [(ngModel)]="editNom" placeholder="Votre nom complet"
+                 [class.input-valid]="editNom.trim().length > 0"
+                 [class.input-invalid]="false" />
+        </div>
+      </ng-container>
+
+      <!-- Alertes -->
+      <div class="modal-alert error" *ngIf="infoError">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        {{ infoError }}
+      </div>
+      <div class="modal-alert success" *ngIf="infoSuccess">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        {{ infoSuccess }}
+      </div>
+
+      <button class="modal-submit-btn" [disabled]="!infoFormValid()" (click)="submitInfoChange()">
+        Enregistrer les modifications
+      </button>
+    </ng-container>
+
+    <!-- ===== ONGLET MOT DE PASSE ===== -->
+    <ng-container *ngIf="settingsTab === 'password'">
+      <div class="form-group" style="margin-bottom: 1.5rem;">
+        <label>Mot de passe actuel</label>
+        <input type="password" class="modal-input" [(ngModel)]="oldPassword" placeholder="••••••••" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nouveau mot de passe</label>
+          <div class="input-with-icon">
+            <input [type]="showNewPassword ? 'text' : 'password'"
+                   class="modal-input" placeholder="••••••••"
+                   [(ngModel)]="newPassword"
+                   (focus)="newPwdFocused = true" (blur)="newPwdFocused = false"
+                   [class.input-valid]="newPassword.length > 0 && hasMinLength() && hasUpperCase() && hasNumber()"
+                   [class.input-invalid]="newPassword.length > 0 && (!hasMinLength() || !hasUpperCase() || !hasNumber())" />
+            <button *ngIf="newPwdFocused || newPassword.length > 0" type="button" class="eye-btn"
+                    (mousedown)="$event.preventDefault()" (click)="showNewPassword = !showNewPassword">
+              <svg *ngIf="!showNewPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              <svg *ngIf="showNewPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+            </button>
+          </div>
+          <div class="password-rules" *ngIf="newPassword.length > 0">
+            <div class="rule" [class.rule-ok]="hasMinLength()" [class.rule-fail]="!hasMinLength()">
+              <span class="rule-icon">{{ hasMinLength() ? "✓" : "✗" }}</span> Au moins 8 caractères
+            </div>
+            <div class="rule" [class.rule-ok]="hasUpperCase()" [class.rule-fail]="!hasUpperCase()">
+              <span class="rule-icon">{{ hasUpperCase() ? "✓" : "✗" }}</span> Une lettre majuscule
+            </div>
+            <div class="rule" [class.rule-ok]="hasNumber()" [class.rule-fail]="!hasNumber()">
+              <span class="rule-icon">{{ hasNumber() ? "✓" : "✗" }}</span> Un chiffre
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Confirmation</label>
+          <div class="input-with-icon">
+            <input [type]="showConfirmPassword ? 'text' : 'password'"
+                   class="modal-input" placeholder="••••••••"
+                   [(ngModel)]="confirmPassword"
+                   (focus)="confirmPwdFocused = true" (blur)="confirmPwdFocused = false"
+                   [class.input-valid]="confirmPassword.length > 0 && newPassword === confirmPassword"
+                   [class.input-invalid]="confirmPassword.length > 0 && newPassword !== confirmPassword" />
+            <button *ngIf="confirmPwdFocused || confirmPassword.length > 0" type="button" class="eye-btn"
+                    (mousedown)="$event.preventDefault()" (click)="showConfirmPassword = !showConfirmPassword">
+              <svg *ngIf="!showConfirmPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              <svg *ngIf="showConfirmPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+            </button>
+          </div>
+          <div class="confirm-hint" *ngIf="confirmPassword.length > 0">
+            <span *ngIf="newPassword === confirmPassword" class="hint-ok">✓ Les mots de passe correspondent</span>
+            <span *ngIf="newPassword !== confirmPassword" class="hint-fail">✗ Les mots de passe ne correspondent pas</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-alert error" *ngIf="passwordError">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        {{ passwordError }}
+      </div>
+      <div class="modal-alert success" *ngIf="passwordSuccess">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        {{ passwordSuccess }}
+      </div>
+
+      <button class="modal-submit-btn"
+              [disabled]="!newPassword || !confirmPassword || newPassword !== confirmPassword || !hasMinLength() || !hasUpperCase() || !hasNumber()"
+              (click)="submitPasswordChange()">Enregistrer</button>
+    </ng-container>
+
+  </div>
+</div>

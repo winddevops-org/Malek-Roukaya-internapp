@@ -1,0 +1,68 @@
+<div class="document-form-overlay" *ngIf="visible" (click)="onOverlayClick($event)">
+  <div class="document-form-dialog">
+    <h2>Nouvelle {{ typeName || 'facture' }}</h2>
+    <p class="document-form-subtitle">
+      Saisissez le nom et les informations réelles pour ce document.
+    </p>
+
+    <div *ngIf="isLoading" class="status-message">
+      Chargement de la structure des champs...
+    </div>
+
+    <div *ngIf="!isLoading">
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
+      <div class="field-row name-row">
+        <label>Nom du document</label>
+        <input type="text" [(ngModel)]="documentName" placeholder="Ex : Facture F-2026-001" />
+      </div>
+
+      <div class="fields-list" *ngIf="fields.length > 0">
+        <div class="field-row" *ngFor="let field of fields">
+          
+          <label>{{ field.fieldName }}</label>
+
+          <div *ngIf="field.fieldType === 'table'" class="table-input-wrapper">
+            <div class="table-scroll">
+              <table class="real-data-table">
+                <thead>
+                  <tr>
+                    <th *ngFor="let col of field._columnsArray">{{ col }}</th>
+                    <th class="col-action"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of formData[field.fieldName!]; let rIndex = index; trackBy: trackByIndex">
+                    <td *ngFor="let col of field._columnsArray">
+                     <input type="text" [(ngModel)]="$any(row)[col]" placeholder="..." class="table-cell-input" />                    
+                    </td>
+                    <td class="col-action">
+                      <button type="button" class="btn-remove-row" (click)="removeTableRow(field.fieldName!, rIndex)" [disabled]="formData[field.fieldName!].length === 1">✕</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <button type="button" class="btn-add-row" (click)="addTableRow(field.fieldName!, field._columnsArray!)">
+              + Ajouter une ligne
+            </button>
+          </div>
+
+          <input *ngIf="field.fieldType === 'date'" type="date" [(ngModel)]="formData[field.fieldName!]" />
+
+          <input *ngIf="field.fieldType === 'text'" type="text" [(ngModel)]="formData[field.fieldName!]" [placeholder]="'Saisir ' + field.fieldName" />
+
+        </div>
+      </div>
+
+      <div class="dialog-actions">
+        <button type="button" class="btn-cancel" (click)="cancel()">Annuler</button>
+        <button type="button" class="btn-save" (click)="submit()" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Création...' : 'Créer le document' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

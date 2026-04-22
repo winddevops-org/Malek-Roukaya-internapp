@@ -1,0 +1,104 @@
+.model-card {
+  background: #ffffff; border: 1px solid #e2e8f0;
+  border-radius: 14px; padding: 20px;
+  display: flex; flex-direction: column; gap: 14px;
+  transition: all 0.25s ease; position: relative; overflow: hidden;
+}
+.model-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(37,99,235,0.4), transparent);
+  opacity: 0; transition: opacity 0.3s;
+}
+.model-card:hover { border-color: #cbd5e1; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+.model-card:hover::before { opacity: 1; }
+
+.card-header { display: flex; align-items: center; justify-content: space-between; }
+.card-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  background: #dbeafe; color: #2563eb;
+}
+
+.card-badge {
+  font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500;
+  padding: 3px 9px; border-radius: 20px; letter-spacing: 0.5px;
+  text-transform: uppercase; background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe;
+}
+
+.card-body { display: flex; flex-direction: column; gap: 6px; }
+.card-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: #1e293b; margin: 0; }
+.card-desc { font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: #94a3b8; margin: 0; line-height: 1.5; }
+.card-meta { display: flex; align-items: center; gap: 5px; color: #94a3b8; font-family: 'DM Sans', sans-serif; font-size: 11.5px; margin-top: 2px; }
+
+/* Actions - Grille pour 2 rangées */
+.card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding-top: 4px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.action-btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px; border-radius: 8px; border: 1px solid transparent;
+  cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 12px;
+  font-weight: 500; transition: all 0.2s ease; background: transparent;
+}
+
+/* ===== ÉTATS ACTIFS ===== */
+.view-btn   { color: #64748b; border-color: #e2e8f0; }
+.view-btn:hover:not(:disabled)   { background: #f8fafc; color: #1e293b; border-color: #cbd5e1; }
+
+.edit-btn   { color: #2563eb; border-color: #bfdbfe; }
+.edit-btn:hover:not(:disabled)   { background: #eff6ff; border-color: #93c5fd; }
+
+.rename-btn { color: #8b5cf6; border-color: #ddd6fe; }
+.rename-btn:hover:not(:disabled) { background: #faf5ff; border-color: #c4b5fd; }
+
+.delete-btn { color: #ef4444; border-color: #fecaca; }
+.delete-btn:hover:not(:disabled) { background: #fef2f2; border-color: #fca5a5; }
+
+/* ===== 🚀 RBAC : États disabled (cohérent avec model-list) ===== */
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f1f5f9;
+  color: #94a3b8;
+  border-color: #e2e8f0;
+  box-shadow: none;
+  transform: none;
+}
+
+/* ===== RESPONSIVE ===== */
+
+/* Écrans intermédiaires / Tablettes :
+   Si les cartes se compressent dans la grille, on masque le texte pour éviter que ça déborde */
+@media (max-width: 1024px) {
+  .action-btn span { display: none; }
+}
+
+/* Mobile :
+   La grille passe à 1 seule colonne (la carte prend toute la largeur de l'écran).
+   On a donc à nouveau de la place pour réafficher le texte ! */
+@media (max-width: 768px) {
+  .model-card { padding: 16px; gap: 12px; }
+  .card-title { font-size: 15px; }
+
+  .card-actions {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .action-btn span { display: inline; } /* Réaffiche le texte */
+  .action-btn { padding: 8px; font-size: 12px; }
+}
+
+/* Très petits téléphones :
+   On repasse en mode icônes seules, mais sur une seule ligne (4 colonnes) pour un design super compact */
+@media (max-width: 400px) {
+  .card-actions {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .action-btn span { display: none; }
+  .action-btn { padding: 10px 0; }
+}

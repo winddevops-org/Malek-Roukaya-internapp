@@ -1,0 +1,600 @@
+<!-- src/app/models/models-list/models-list.component.html -->
+<div class="models-list">
+  <!-- HEADER -->
+  <div class="list-header">
+    <div class="list-title">
+      <div class="title-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+          <polyline points="14,2 14,8 20,8"/>
+          <line x1="8" y1="13" x2="16" y2="13"/>
+          <line x1="8" y1="17" x2="12" y2="17"/>
+        </svg>
+      </div>
+      <div>
+        <h2 class="list-heading">Modèles de {{ modelType }}</h2>
+        <p class="list-count">{{ filteredModels.length }} modèle(s) disponible(s)</p>
+      </div>
+    </div>
+
+    <div class="list-actions">
+      <button class="btn-config-structure" type="button"
+              [disabled]="!hasPermission('DEFINIR_ELEMENTS')"
+              (click)="openTypeFieldsDialog()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="4" rx="1"></rect>
+          <rect x="3" y="10" width="18" height="4" rx="1"></rect>
+          <rect x="3" y="16" width="10" height="4" rx="1"></rect>
+        </svg>
+        Définir / Modifier les élements de "{{ modelType }}"
+      </button>
+
+      <button class="btn-create-header"
+              [disabled]="!hasPermission('CREER_DES_MODELES')"
+              (click)="openCreatePopup()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Créer un modèle
+      </button>
+
+      <button class="btn-create-header"
+              [disabled]="!hasPermission('REMPLIR_MODELES')"
+              (click)="openDocumentFormDialog()">
+        Remplir une {{ modelType }}
+      </button>
+
+      <button class="btn-create-header"
+              [disabled]="!hasPermission('VOIR_DES_DOCUMENTS')"
+              (click)="openDocumentsListDialog()">
+        Voir toutes les {{ modelType }}
+      </button>
+    </div>
+  </div>
+
+  <!-- GRILLE DE CARTES -->
+  <div class="cards-grid">
+    <app-model-card
+      *ngFor="let model of filteredModels"
+      [model]="model"
+      (view)="onView($event)"
+      (edit)="onEdit($event)"
+      (rename)="onRename($event)"
+      (delete)="onDelete($event)"
+    ></app-model-card>
+  </div>
+
+  <!-- ÉTAT VIDE -->
+  <div class="empty-state" *ngIf="filteredModels.length === 0">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/>
+      <polyline points="13,2 13,9 20,9"/>
+    </svg>
+    <p>Aucun modèle pour l'instant</p>
+    <span>Cliquez sur "Créer un modèle" pour commencer</span>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- BOUTON FAB — Générer depuis PDF (bas à droite)               -->
+<!-- ============================================================ -->
+<button
+  class="ocr-fab-btn"
+  type="button"
+  [disabled]="!hasPermission('CREER_DES_MODELES')"
+  (click)="openOcrPopup()"
+  title="Générer un modèle automatiquement depuis un PDF">
+  <span class="ocr-fab-icon">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+      <polyline points="14,2 14,8 20,8"/>
+      <line x1="12" y1="11" x2="12" y2="17"/>
+      <line x1="9" y1="14" x2="15" y2="14"/>
+    </svg>
+  </span>
+  <span class="ocr-fab-label">Générer depuis PDF</span>
+  <span class="ocr-fab-badge">IA</span>
+</button>
+
+
+<!-- ============================================================ -->
+<!-- POPUP OCR — ÉTAPE 1 : Upload                                 -->
+<!-- ============================================================ -->
+<div class="popup-overlay" *ngIf="showOcrPopup && ocrStep === 1" (click)="closeOnOverlayOcr($event)">
+  <div class="popup ocr-popup" (click)="$event.stopPropagation()">
+
+    <div class="popup-header">
+      <div class="popup-icon" style="background:#ede9fe; color:#7c3aed;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+          <polyline points="14,2 14,8 20,8"/>
+          <line x1="8" y1="13" x2="16" y2="13"/>
+          <line x1="8" y1="17" x2="12" y2="17"/>
+        </svg>
+      </div>
+      <div>
+        <h3 class="popup-title">Générer depuis un PDF</h3>
+        <p class="popup-sub">L'IA analyse votre document et génère le modèle automatiquement</p>
+      </div>
+      <button class="popup-close" (click)="closeOcrPopup()">✕</button>
+    </div>
+
+    <div class="popup-body">
+
+      <!-- Zone drag & drop -->
+      <div
+        class="ocr-drop-zone"
+        [class.ocr-drop-zone--active]="ocrDragOver"
+        [class.ocr-drop-zone--has-file]="ocrFile !== null"
+        (dragover)="onOcrDragOver($event)"
+        (dragleave)="onOcrDragLeave()"
+        (drop)="onOcrDrop($event)"
+        (click)="ocrFileInput.click()">
+
+        <input
+          #ocrFileInput
+          type="file"
+          accept="application/pdf"
+          style="display:none"
+          (change)="onOcrFileSelected($event)" />
+
+        <!-- Pas de fichier -->
+        <ng-container *ngIf="!ocrFile">
+          <div class="ocr-drop-icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+              <polyline points="17,8 12,3 7,8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <p class="ocr-drop-title">Déposez votre PDF ici</p>
+          <p class="ocr-drop-sub">ou <span class="ocr-drop-link">parcourir</span></p>
+          <p class="ocr-drop-hint">PDF uniquement · Taille max : 20 Mo</p>
+        </ng-container>
+
+        <!-- Fichier sélectionné -->
+        <ng-container *ngIf="ocrFile">
+          <div class="ocr-file-selected">
+            <div class="ocr-file-pdf-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+              </svg>
+              <span>PDF</span>
+            </div>
+            <div class="ocr-file-info">
+              <span class="ocr-file-name">{{ ocrFile.name }}</span>
+              <span class="ocr-file-size">{{ (ocrFile.size / 1024 / 1024).toFixed(2) }} Mo</span>
+            </div>
+            <button class="ocr-file-remove" (click)="removeOcrFile($event)" title="Supprimer">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+        </ng-container>
+      </div>
+
+      <!-- Nom du modèle -->
+      <div style="margin-top:16px;" *ngIf="ocrFile">
+        <label class="field-label">Nom du modèle à créer</label>
+        <input
+          type="text"
+          class="field-input"
+          placeholder="Ex : Bon de commande standard"
+          [(ngModel)]="ocrModelName"
+          (keydown.enter)="ocrFile && ocrModelName.trim() && submitOcr()"
+        />
+      </div>
+
+      <!-- Erreur -->
+      <p class="field-error" *ngIf="ocrError" style="margin-top:10px;">{{ ocrError }}</p>
+
+      <!-- Features (si pas de fichier) -->
+      <div class="ocr-features" *ngIf="!ocrFile">
+        <div class="ocr-feature-item">
+          <div class="ocr-feature-dot" style="background:#dbeafe; color:#2563eb;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20,6 9,17 4,12"/></svg>
+          </div>
+          <span>Détecte les champs : texte, date, tableau, image…</span>
+        </div>
+        <div class="ocr-feature-item">
+          <div class="ocr-feature-dot" style="background:#dcfce7; color:#16a34a;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20,6 9,17 4,12"/></svg>
+          </div>
+          <span>Positionne les champs aux bons endroits du document</span>
+        </div>
+        <div class="ocr-feature-item">
+          <div class="ocr-feature-dot" style="background:#ede9fe; color:#7c3aed;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20,6 9,17 4,12"/></svg>
+          </div>
+          <span>Modèle entièrement modifiable dans l'éditeur après génération</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="popup-footer">
+      <button class="btn-cancel" (click)="closeOcrPopup()">Annuler</button>
+      <button
+        class="btn-confirm btn-ocr-primary"
+        [disabled]="!ocrFile || !ocrModelName.trim()"
+        (click)="submitOcr()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        Analyser et générer
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- POPUP OCR — ÉTAPE 2 : Chargement / Scan                      -->
+<!-- ============================================================ -->
+<div class="popup-overlay" *ngIf="showOcrPopup && ocrStep === 2">
+  <div class="popup ocr-popup ocr-popup-loading" (click)="$event.stopPropagation()">
+    <div class="popup-body ocr-loading-body">
+
+      <!-- Animation document + scanner -->
+      <div class="ocr-scanner-wrap">
+        <div class="ocr-scanner-doc">
+          <svg width="60" height="76" viewBox="0 0 60 76" fill="none">
+            <rect x="3" y="2" width="54" height="72" rx="6" fill="#dbeafe" stroke="#93c5fd" stroke-width="1.5"/>
+            <line x1="12" y1="18" x2="48" y2="18" stroke="#bfdbfe" stroke-width="3" stroke-linecap="round"/>
+            <line x1="12" y1="27" x2="48" y2="27" stroke="#bfdbfe" stroke-width="3" stroke-linecap="round"/>
+            <line x1="12" y1="36" x2="36" y2="36" stroke="#bfdbfe" stroke-width="3" stroke-linecap="round"/>
+            <line x1="12" y1="48" x2="48" y2="48" stroke="#bfdbfe" stroke-width="2" stroke-linecap="round"/>
+            <line x1="12" y1="55" x2="42" y2="55" stroke="#bfdbfe" stroke-width="2" stroke-linecap="round"/>
+            <line x1="12" y1="62" x2="34" y2="62" stroke="#bfdbfe" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <div class="ocr-scan-beam"></div>
+        </div>
+      </div>
+
+      <h3 class="ocr-loading-title">Analyse en cours…</h3>
+      <p class="ocr-loading-sub">Merci de patienter, cela prend quelques secondes</p>
+
+      <div class="ocr-steps-list">
+        <div class="ocr-step-row" [class.step-active]="ocrProgressStep === 0" [class.step-done]="ocrProgressStep > 0">
+          <span class="step-bullet">
+            <svg *ngIf="ocrProgressStep > 0" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg>
+            <span *ngIf="ocrProgressStep === 0" class="step-spinner"></span>
+            <span *ngIf="ocrProgressStep < 0">1</span>
+          </span>
+          <span>Extraction du contenu et des zones du PDF</span>
+        </div>
+        <div class="ocr-step-row" [class.step-active]="ocrProgressStep === 1" [class.step-done]="ocrProgressStep > 1">
+          <span class="step-bullet">
+            <svg *ngIf="ocrProgressStep > 1" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg>
+            <span *ngIf="ocrProgressStep === 1" class="step-spinner"></span>
+            <span *ngIf="ocrProgressStep < 1">2</span>
+          </span>
+          <span>Identification des types de champs</span>
+        </div>
+        <div class="ocr-step-row" [class.step-active]="ocrProgressStep === 2" [class.step-done]="ocrProgressStep > 2">
+          <span class="step-bullet">
+            <svg *ngIf="ocrProgressStep > 2" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg>
+            <span *ngIf="ocrProgressStep === 2" class="step-spinner"></span>
+            <span *ngIf="ocrProgressStep < 2">3</span>
+          </span>
+          <span>Positionnement des champs sur le modèle</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- POPUP OCR — ÉTAPE 3 : Succès                                 -->
+<!-- ============================================================ -->
+<div class="popup-overlay" *ngIf="showOcrPopup && ocrStep === 3" (click)="closeOnOverlayOcr($event)">
+  <div class="popup ocr-popup" (click)="$event.stopPropagation()">
+
+    <div class="popup-header">
+      <div class="popup-icon" style="background:#dcfce7; color:#16a34a;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="20,6 9,17 4,12"/>
+        </svg>
+      </div>
+      <div>
+        <h3 class="popup-title">Modèle généré !</h3>
+        <p class="popup-sub">{{ ocrResult?.fieldsCount || 0 }} champ(s) détecté(s) et positionné(s)</p>
+      </div>
+      <button class="popup-close" (click)="closeOcrPopup()">✕</button>
+    </div>
+
+    <div class="popup-body">
+      <div class="ocr-success-summary">
+        <div class="ocr-success-model-row">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <polyline points="14,2 14,8 20,8"/>
+          </svg>
+          <strong>{{ ocrModelName }}</strong>
+        </div>
+
+        <div class="ocr-tags-wrap" *ngIf="ocrResult?.fields?.length">
+          <p class="ocr-tags-label">Champs détectés :</p>
+          <div class="ocr-tags">
+            <span class="ocr-tag" *ngFor="let f of ocrResult?.fields" [attr.data-type]="f.type">
+              <span class="ocr-tag-type">{{ f.type }}</span>{{ f.label }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ocr-info-note">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        Vous pouvez ajuster la position et les propriétés de chaque champ dans l'éditeur.
+      </div>
+    </div>
+
+    <div class="popup-footer">
+      <button class="btn-cancel" (click)="closeOcrPopup()">Fermer</button>
+      <button class="btn-confirm" (click)="openGeneratedModelInEditor()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+        Ouvrir dans l'éditeur
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- POPUP OCR — ÉTAPE 4 : Erreur                                 -->
+<!-- ============================================================ -->
+<div class="popup-overlay" *ngIf="showOcrPopup && ocrStep === 4" (click)="closeOnOverlayOcr($event)">
+  <div class="popup ocr-popup" (click)="$event.stopPropagation()">
+
+    <div class="popup-header">
+      <div class="popup-icon" style="background:#fef2f2; color:#dc2626;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <div>
+        <h3 class="popup-title">Erreur d'analyse</h3>
+        <p class="popup-sub">L'analyse du PDF a échoué</p>
+      </div>
+      <button class="popup-close" (click)="closeOcrPopup()">✕</button>
+    </div>
+
+    <div class="popup-body">
+      <p style="font-family:'DM Sans',sans-serif; font-size:14px; color:#dc2626; margin:0;">{{ ocrError }}</p>
+    </div>
+
+    <div class="popup-footer">
+      <button class="btn-cancel" (click)="closeOcrPopup()">Fermer</button>
+      <button class="btn-confirm" (click)="retryOcr()">Réessayer</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- POPUP CRÉATION MANUELLE                                       -->
+<!-- ============================================================ -->
+<div class="popup-overlay" *ngIf="showPopup" (click)="closeOnOverlay($event)">
+  <div class="popup" (click)="$event.stopPropagation()">
+    <div class="popup-header">
+      <div class="popup-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+          <polyline points="14,2 14,8 20,8"/>
+        </svg>
+      </div>
+      <div>
+        <h3 class="popup-title">Nouveau modèle</h3>
+        <p class="popup-sub">{{ modelType }}</p>
+      </div>
+      <button class="popup-close" (click)="closePopup()">✕</button>
+    </div>
+    <div class="popup-body">
+      <label class="field-label">Nom du modèle</label>
+      <input
+        type="text"
+        class="field-input"
+        placeholder="Ex : Facture Standard 2025"
+        [(ngModel)]="newModelName"
+        (keydown.enter)="confirmCreate()"
+      />
+      <p class="field-error" *ngIf="showError">Veuillez saisir un nom.</p>
+    </div>
+    <div class="popup-footer">
+      <button class="btn-cancel" (click)="closePopup()">Annuler</button>
+      <button class="btn-confirm" (click)="confirmCreate()">Continuer</button>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP RENOMMAGE -->
+<div class="popup-overlay" *ngIf="showRenamePopup" (click)="closeOnOverlayRename($event)">
+  <div class="popup" (click)="$event.stopPropagation()">
+    <div class="popup-header">
+      <div class="popup-icon">✏️</div>
+      <div>
+        <h3 class="popup-title">Renommer le modèle</h3>
+        <p class="popup-sub">{{ renamingModel?.name }}</p>
+      </div>
+      <button class="popup-close" (click)="closeRenamePopup()">✕</button>
+    </div>
+    <div class="popup-body">
+      <label class="field-label">Nouveau nom</label>
+      <input
+        type="text"
+        class="field-input"
+        [(ngModel)]="renameModelName"
+        (keydown.enter)="confirmRename()"
+      />
+      <p class="field-error" *ngIf="showRenameError">Veuillez saisir un nom.</p>
+    </div>
+    <div class="popup-footer">
+      <button class="btn-cancel" (click)="closeRenamePopup()">Annuler</button>
+      <button class="btn-confirm" (click)="confirmRename()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ÉDITEUR DE MODÈLE -->
+<app-model-editor
+  *ngIf="showEditor"
+  [modelName]="editingModelName"
+  [modelType]="editingModelType"
+  [existingFields]="editingModelFields"
+  [isEditMode]="editingModel !== null"
+  [typeConfig]="typeConfig"
+  (close)="onEditorClose()"
+  (save)="onEditorSave($event)"
+></app-model-editor>
+
+<!-- VIEWER DE MODÈLE -->
+<app-model-viewer
+  *ngIf="showViewer && viewingModel"
+  [model]="viewingModel"
+  [documentData]="previewDocumentData"
+  (close)="onViewerClose()"
+></app-model-viewer>
+
+<div class="undo-bar" *ngIf="deletedModel">
+  <span>Modèle supprimé</span>
+  <button (click)="undoDelete()">Annuler</button>
+</div>
+
+<!-- DIALOG CONFIGURATION DES CHAMPS -->
+<app-type-fields-dialog
+  [visible]="showTypeFieldsDialog"
+  [typeId]="currentTypeId"
+  [typeName]="modelType"
+  (closed)="onTypeFieldsDialogClosed()"
+></app-type-fields-dialog>
+
+<!-- DIALOG DE SAISIE D'UN DOCUMENT -->
+<app-document-form-dialog
+  [visible]="showDocumentFormDialog"
+  [typeId]="currentTypeId"
+  [typeName]="modelType"
+  (closed)="showDocumentFormDialog = false"
+  (submitted)="onDocumentFormSubmitted($event)"
+></app-document-form-dialog>
+
+<!-- DIALOG : Choisir un document pour "Consulter" -->
+<div class="popup-overlay" *ngIf="showDocumentChooser" (click)="closeOnOverlay($event)">
+  <div class="popup" (click)="$event.stopPropagation()">
+    <div class="popup-header">
+      <div class="popup-icon">📄</div>
+      <div>
+        <h3 class="popup-title">Choisir un document</h3>
+        <p class="popup-sub">Sélectionnez le document à afficher sur le modèle <strong>{{ previewingModel?.name }}</strong></p>
+      </div>
+      <button class="popup-close" (click)="cancelDocumentChoice()">✕</button>
+    </div>
+    <div class="popup-body">
+      <label class="field-label">Document</label>
+      <select class="field-input" [(ngModel)]="selectedDocumentId">
+        <option [ngValue]="null">— Sélectionnez un document —</option>
+        <option *ngFor="let doc of documentsOfType" [ngValue]="doc.id">{{ doc.name }}</option>
+      </select>
+    </div>
+    <div class="popup-footer">
+      <button class="btn-cancel" (click)="cancelDocumentChoice()">Annuler</button>
+      <button class="btn-confirm" [disabled]="!selectedDocumentId" (click)="confirmDocumentChoice()">Afficher</button>
+    </div>
+  </div>
+</div>
+
+<!-- DIALOG : Liste de tous les documents -->
+<div class="popup-overlay" *ngIf="showDocumentsListDialog" (click)="closeOnOverlay($event)">
+  <div class="popup" (click)="$event.stopPropagation()">
+    <div class="popup-header">
+      <div class="popup-icon">📄</div>
+      <div>
+        <h3 class="popup-title">{{ documentsOfType.length }} {{ modelType }} enregistrée(s)</h3>
+        <p class="popup-sub">Liste des documents enregistrés pour ce type.</p>
+      </div>
+      <button class="popup-close" (click)="closeDocumentsListDialog()">✕</button>
+    </div>
+    <div class="popup-body">
+      <div *ngIf="documentsOfType.length === 0" class="field-error">Aucune {{ modelType }} enregistrée pour le moment.</div>
+      <div *ngIf="documentsOfType.length > 0" class="documents-list">
+        <div class="document-row" *ngFor="let doc of documentsOfType">
+          <div class="document-main">
+            <div class="document-name">{{ doc.name }}</div>
+            <div class="document-meta">ID: {{ doc.id }} • Créée le {{ doc.createdAt || '—' }}</div>
+          </div>
+          <div class="document-actions">
+            <button class="btn-small" (click)="onOpenDocument(doc)">Ouvrir</button>
+            <button class="btn-small btn-danger" (click)="onDeleteDocument(doc)">Supprimer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="popup-footer">
+      <button class="btn-cancel" (click)="closeDocumentsListDialog()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- DIALOG : Choisir un modèle pour ouvrir un document depuis la liste -->
+<div class="popup-overlay" *ngIf="showChooseModelDialog && selectedDocumentForView" (click)="closeOnOverlay($event)">
+  <div class="popup" (click)="$event.stopPropagation()">
+    <div class="popup-header">
+      <div class="popup-icon">🧾</div>
+      <div>
+        <h3 class="popup-title">Ouvrir "{{ selectedDocumentForView.name }}"</h3>
+        <p class="popup-sub">Choisissez le modèle sur lequel afficher ce document.</p>
+      </div>
+      <button class="popup-close" (click)="cancelChooseModelForDocument()">✕</button>
+    </div>
+    <div class="popup-body">
+      <label class="field-label">Modèle</label>
+      <select class="field-input" [(ngModel)]="selectedModelIdForView">
+        <option [ngValue]="null">— Sélectionnez un modèle —</option>
+        <option *ngFor="let m of models" [ngValue]="m.id">{{ m.name }}</option>
+      </select>
+    </div>
+    <div class="popup-footer">
+      <button class="btn-cancel" (click)="cancelChooseModelForDocument()">Annuler</button>
+      <button class="btn-confirm" [disabled]="!selectedModelIdForView" (click)="confirmChooseModelForDocument()">Ouvrir</button>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP SUPPRESSION MODÈLE -->
+<div class="popup-overlay" *ngIf="showDeleteConfirmPopup" (click)="closeOnOverlay($event)">
+  <div class="popup" (click)="$event.stopPropagation()">
+    <div class="popup-header">
+      <div class="popup-icon" style="color:#ef4444; background:#fef2f2;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="3,6 5,6 21,6"/>
+          <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+          <path d="M10 11v6M14 11v6"/>
+          <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+        </svg>
+      </div>
+      <div><h3 class="popup-title">Supprimer le modèle</h3></div>
+      <button class="popup-close" (click)="cancelDelete()">✕</button>
+    </div>
+    <div class="popup-body">
+      <p style="font-family:'DM Sans',sans-serif; font-size:14px; color:#475569; margin:0; line-height:1.5;">
+        Êtes-vous sûr de vouloir supprimer le modèle <strong>"{{ modelToDelete?.name }}"</strong> ?
+      </p>
+    </div>
+    <div class="popup-footer">
+      <button class="btn-cancel" (click)="cancelDelete()">Annuler</button>
+      <button class="btn-confirm btn-confirm-danger" (click)="confirmDelete()">Supprimer</button>
+    </div>
+  </div>
+</div>

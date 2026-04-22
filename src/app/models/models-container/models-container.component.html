@@ -1,0 +1,42 @@
+<div class="models-container">
+  <!-- HOME -->
+  <div class="welcome-state" *ngIf="viewMode === 'home'">
+    <div class="welcome-icon">
+      <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="3" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+        <rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+    </div>
+
+    <h2 class="welcome-title">Modèles récents</h2>
+    <p class="welcome-sub">Créez ou trouvez d’autres modèles à gauche.</p>
+
+    <div class="recent-block">
+      <p *ngIf="loadingRecent">Chargement...</p>
+      <p *ngIf="!loadingRecent && recentModels.length === 0">Aucun modèle récent.</p>
+
+      <div class="cards-grid" *ngIf="!loadingRecent && recentModels.length > 0">
+        <app-model-card
+          *ngFor="let model of recentModels"
+          [model]="model"
+          (view)="onRecentView($event)"
+          (edit)="onRecentEdit($event)"
+          (rename)="onRecentRename($event)"
+          (delete)="onRecentDelete($event)"
+        ></app-model-card>
+      </div>
+    </div>
+  </div>
+
+  <!-- LISTE PAR TYPE -->
+  <div *ngIf="viewMode === 'type' && activeType">
+    <app-models-list [modelType]="activeType.name"></app-models-list>
+  </div>
+
+  <!-- CORBEILLE -->
+  <div *ngIf="viewMode === 'trash'">
+    <app-trash-models></app-trash-models>
+  </div>
+</div>

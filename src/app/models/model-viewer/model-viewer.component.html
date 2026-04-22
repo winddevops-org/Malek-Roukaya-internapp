@@ -1,0 +1,93 @@
+<div class="viewer-overlay">
+  <div class="viewer-container">
+    <div class="viewer-body">
+      <div class="viewer-toolbar">
+        <button class="btn-close" (click)="onClose()">✕ Fermer</button>
+        <button class="btn-action" (click)="onPrint()">🖨 Imprimer</button>
+        <button class="btn-action" (click)="onExportPDF()">📄 Export PDF</button>
+      </div>
+
+      <div class="viewer-content">
+        <div class="page">
+          <div class="fields-container">
+            <div
+              *ngFor="let field of model.fields"
+              class="field-preview"
+              [style.left.px]="field.x"
+              [style.top.px]="field.y"
+              [style.width.px]="field.width"
+              [style.height.px]="field.height"
+            >
+              <div
+                *ngIf="field.type === 'shape-rect'"
+                class="viewer-shape-rectangle"
+                [ngStyle]="getShapeStyle(field)"
+              ></div>
+
+              <!-- TABLEAU : headers + au moins une ligne -->
+              <div *ngIf="field.type === 'table'" class="viewer-table-wrapper" [ngStyle]="getFieldStyle(field)">
+                <table class="viewer-table">
+                  <thead>
+                  <tr>
+                    <th *ngFor="let header of getTableHeaders(field, getTableData(field))">{{ header }}</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let row of (getTableData(field).length > 0 ? getTableData(field) : [createEmptyRow(getTableHeaders(field, getTableData(field)))])">
+                    <td *ngFor="let header of getTableHeaders(field, getTableData(field))">{{ row[header] || "" }}</td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- TEXTAREA -->
+              <textarea
+                *ngIf="field.type === 'textarea'"
+                class="field-input"
+                [ngStyle]="getFieldStyle(field)"
+                [disabled]="true"
+              >{{ getFieldDisplayValue(field) }}</textarea>
+
+              <!-- CHECKBOX -->
+              <div *ngIf="field.type === 'checkbox'" class="field-checkbox">
+                <input type="checkbox" [checked]="getFieldDisplayValue(field)==='true'" disabled />
+              </div>
+
+              <!-- IMAGE -->
+              <img
+                *ngIf="field.type === 'image' && field.value"
+                class="field-image"
+                [src]="field.value"
+                alt="Image"
+                draggable="false"
+              />
+              <div *ngIf="field.type === 'image' && !field.value" class="field-image-placeholder">
+                <span>Image</span>
+              </div>
+
+              <!-- AUTRES INPUTS -->
+              <input
+                *ngIf="
+                  field.type !== 'textarea' &&
+                  field.type !== 'checkbox' &&
+                  field.type !== 'image' &&
+                  field.type !== 'shape-rect' &&
+                  field.type !== 'table'
+                "
+                class="field-input"
+                [ngStyle]="getFieldStyle(field)"
+                [type]="field.type === 'date' ? 'date' : 'text'"
+                [value]="getFieldDisplayValue(field)"
+                [disabled]="true"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="viewer-empty" *ngIf="!model.fields || model.fields.length === 0">
+        <p>Aucun champ dans ce modèle.</p>
+      </div>
+    </div>
+  </div>
+</div>

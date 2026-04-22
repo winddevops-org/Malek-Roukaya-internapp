@@ -1,0 +1,277 @@
+<!-- src/app/acceuil/acceuil.component.html -->
+<div class="welcome-container">
+  <div class="content">
+    <div class="brand-badge">Plateforme documentaire</div>
+    <h1 class="welcome-title">Créez vos propres<br /><span>documents</span></h1>
+    <p class="welcome-subtitle">
+      Gérez, générez et partagez vos documents professionnels<br />
+      en toute simplicité depuis une seule plateforme.
+    </p>
+    <div class="buttons-group">
+      <button class="btn btn-signup" (click)="signup()">Créer un compte</button>
+      <button class="btn btn-login" (click)="login()">Se connecter</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" *ngIf="showSignupModal || showLoginModal || showSuccessModal || showForgotModal || showOtpModal || showResetPasswordModal || showForgotSuccessModal" (click)="!showSuccessModal && !showForgotSuccessModal && !showOtpModal && !showResetPasswordModal && closeModals()"></div>
+
+<!-- ===== POPUP INSCRIPTION ===== -->
+<div class="modal" *ngIf="showSignupModal">
+  <button class="modal-close" (click)="closeModals()">✕</button>
+
+  <div class="modal-header">
+    <div class="modal-icon"></div>
+    <h2 class="modal-title">Créer un compte</h2>
+    <p class="modal-subtitle">Inscription entreprise</p>
+  </div>
+
+  <form class="modal-form" (ngSubmit)="submitSignup()" #signupFormCtrl="ngForm">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nom de l'entreprise</label>
+        <input type="text" [(ngModel)]="signupForm.nom" name="nom" placeholder="Ex: Société XYZ" required />
+      </div>
+      <div class="form-group">
+        <label>Matricule fiscale</label>
+        <input type="text" [(ngModel)]="signupForm.prenom" name="prenom" placeholder="Ex: 1234567/A" required />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Adresse Email de l'entreprise</label>
+      <input type="email" [(ngModel)]="signupForm.email" name="email" placeholder="contact@entreprise.com" required [class.input-valid]="isValidEmail(signupForm.email)" [class.input-invalid]="signupForm.email.length > 0 && !isValidEmail(signupForm.email)" />
+      <div class="confirm-hint" *ngIf="signupForm.email.length > 0 && !isValidEmail(signupForm.email)">
+        <span class="hint-fail">✗ Format d'email invalide</span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Téléphone</label>
+        <!-- Composant ngx-intl-tel-input avec separateDialCode -->
+        <ngx-intl-tel-input
+          [cssClass]="'custom-phone-input'"
+          [preferredCountries]="preferredCountries"
+          [enableAutoCountrySelect]="true"
+          [enablePlaceholder]="true"
+          [searchCountryFlag]="true"
+          [searchCountryField]="[SearchCountryField.Iso2, SearchCountryField.Name]"
+          [selectFirstCountry]="false"
+          [selectedCountryISO]="CountryISO.Tunisia"
+          [maxLength]="15"
+          [phoneValidation]="true"
+          [separateDialCode]="true"
+          name="telephone"
+          [(ngModel)]="signupForm.telephone"
+          #phoneCtrl="ngModel"
+          [class.phone-valid]="phoneCtrl.valid && signupForm.telephone"
+          [class.phone-error]="phoneCtrl.invalid && (phoneCtrl.touched || formSubmitAttempted)">
+        </ngx-intl-tel-input>
+        <div class="confirm-hint" *ngIf="phoneCtrl.invalid && (phoneCtrl.touched || formSubmitAttempted)">
+          <span class="hint-fail">✗ Numéro invalide pour ce pays</span>
+        </div>
+      </div>
+      <div class="form-group country-dropdown-wrapper">
+        <label>Pays</label>
+        <!-- Dropdown pays custom — remplace ng-select pour un affichage fiable des drapeaux -->
+        <div class="country-select-trigger"
+             [class.open]="countryDropdownOpen"
+             [class.has-value]="signupForm.gouvernorat"
+             (click)="toggleCountryDropdown()">
+          <ng-container *ngIf="selectedCountry; else placeholderTpl">
+            <span class="country-flag-display">{{ selectedCountry.flag }}</span>
+            <span class="country-name-display">{{ selectedCountry.name }}</span>
+          </ng-container>
+          <ng-template #placeholderTpl>
+            <span class="country-placeholder">Choisir un pays</span>
+          </ng-template>
+          <span class="country-arrow" [class.rotated]="countryDropdownOpen">▾</span>
+        </div>
+
+        <div class="country-dropdown-panel" *ngIf="countryDropdownOpen">
+          <div class="country-search-box">
+            <input
+              type="text"
+              [(ngModel)]="countrySearch"
+              name="countrySearch"
+              placeholder="Rechercher un pays..."
+              (click)="$event.stopPropagation()"
+              (ngModelChange)="filterCountries()"
+              class="country-search-input"
+              #countrySearchInput />
+          </div>
+          <div class="country-options-list">
+            <div class="country-option"
+                 *ngFor="let c of filteredCountriesList"
+                 [class.selected]="signupForm.gouvernorat === c.name"
+                 (click)="selectCountry(c)">
+              <span class="opt-flag">{{ c.flag }}</span>
+              <span class="opt-name">{{ c.name }}</span>
+            </div>
+            <div class="country-no-result" *ngIf="filteredCountriesList.length === 0">
+              Aucun pays trouvé
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Adresse</label>
+      <input type="text" [(ngModel)]="signupForm.ville" name="ville" placeholder="Ex: Tunis Centre" required />
+    </div>
+
+    <div style="background: #e0f2fe; padding: 12px; border-radius: 8px; border-left: 4px solid #3b82f6; margin-bottom: 16px;">
+      <p style="margin: 0; font-size: 0.85rem; color: #1e3a8a;">
+        <strong style="color: #1e40af;">Sécurité :</strong> Un mot de passe sécurisé vous sera généré et envoyé par e-mail une fois votre demande validée.
+      </p>
+    </div>
+
+    <div class="error-message" *ngIf="signupError">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      <span>{{ signupError }}</span>
+    </div>
+
+    <button type="submit" class="btn-submit" [disabled]="!signupFormValid || signupFormCtrl.invalid" [class.btn-disabled]="!signupFormValid || signupFormCtrl.invalid">Soumettre la demande</button>
+
+    <p class="switch-text">Déjà un compte ? <span class="switch-link" (click)="switchToLogin()">Se connecter</span></p>
+  </form>
+</div>
+
+<!-- ===== POPUP CONNEXION ===== -->
+<div class="modal" *ngIf="showLoginModal">
+  <button class="modal-close" (click)="closeModals()">✕</button>
+
+  <div class="modal-header">
+    <div class="modal-icon"></div>
+    <h2 class="modal-title">Connexion</h2>
+    <p class="modal-subtitle">Accédez à votre espace personnel</p>
+  </div>
+
+  <form class="modal-form" (ngSubmit)="submitLogin()">
+    <div class="form-group">
+      <label>Adresse Email</label>
+      <input type="email" [(ngModel)]="loginForm.email" name="email" placeholder="votre@email.com" required [class.input-valid]="isValidEmail(loginForm.email)" [class.input-invalid]="loginForm.email.length > 0 && !isValidEmail(loginForm.email)" />
+      <div class="confirm-hint" *ngIf="loginForm.email.length > 0 && !isValidEmail(loginForm.email)">
+        <span class="hint-fail">✗ Format d'email invalide</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Mot de passe</label>
+      <input type="password" [(ngModel)]="loginForm.password" name="password" placeholder="••••••••" required />
+    </div>
+
+    <p class="forgot-password" (click)="forgotPassword()">Mot de passe oublié ?</p>
+
+    <div class="error-message" *ngIf="loginError">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      <span>{{ loginError }}</span>
+    </div>
+
+    <button type="submit" class="btn-submit" [disabled]="!loginFormValid" [class.btn-disabled]="!loginFormValid">Se connecter</button>
+
+    <p class="switch-text">Pas encore de compte ? <span class="switch-link" (click)="switchToSignup()">Inscrire mon entreprise</span></p>
+  </form>
+</div>
+
+<!-- ===== POPUP MOT DE PASSE OUBLIÉ ===== -->
+<div class="modal" *ngIf="showForgotModal">
+  <button class="modal-close" (click)="closeForgotModal()">✕</button>
+  <div class="modal-header">
+    <div class="modal-icon"></div>
+    <h2 class="modal-title">Mot de passe oublié</h2>
+    <p class="modal-subtitle">Entrez votre email pour recevoir un code de réinitialisation</p>
+  </div>
+  <form class="modal-form" (ngSubmit)="submitForgotPassword()">
+    <div class="form-group">
+      <label>Adresse Email</label>
+      <input type="email" [(ngModel)]="forgotEmail" name="forgotEmail" placeholder="votre@email.com" required [class.input-invalid]="forgotEmail.length > 0 && !isValidEmail(forgotEmail)" />
+      <div class="confirm-hint" *ngIf="forgotEmail.length > 0 && !isValidEmail(forgotEmail)"><span class="hint-fail">✗ Format d'email invalide</span></div>
+    </div>
+    <div class="error-message" *ngIf="forgotError">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      <span>{{ forgotError }}</span>
+    </div>
+    <button type="submit" class="btn-submit" [disabled]="!isValidEmail(forgotEmail)" [class.btn-disabled]="!isValidEmail(forgotEmail)">Envoyer le code OTP</button>
+    <p class="switch-text">Retour à la <span class="switch-link" (click)="closeForgotModal(); showLoginModal = true">connexion</span></p>
+  </form>
+</div>
+
+<!-- ===== POPUP VÉRIFICATION OTP ===== -->
+<div class="modal" *ngIf="showOtpModal">
+  <button class="modal-close" (click)="closeOtpModal()">✕</button>
+  <div class="modal-header">
+    <div class="modal-icon"></div>
+    <h2 class="modal-title">Vérification OTP</h2>
+    <p class="modal-subtitle">Entrez le code à 6 chiffres envoyé à<br /><strong>{{ forgotEmail }}</strong></p>
+  </div>
+  <form class="modal-form" (ngSubmit)="submitOTP()">
+    <div class="form-group">
+      <label>Code OTP</label>
+      <input type="text" [(ngModel)]="otpCode" name="otpCode" placeholder="123456" maxlength="6" pattern="[0-9]{6}" class="otp-input" required />
+      <small class="form-hint">Code valide pendant 10 minutes</small>
+    </div>
+    <div class="error-message" *ngIf="otpError">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      <span>{{ otpError }}</span>
+    </div>
+    <button type="submit" class="btn-submit" [disabled]="!otpFormValid" [class.btn-disabled]="!otpFormValid">Vérifier le code</button>
+  </form>
+</div>
+
+<!-- ===== POPUP RÉINITIALISATION MOT DE PASSE ===== -->
+<div class="modal" *ngIf="showResetPasswordModal">
+  <button class="modal-close" (click)="closeResetPasswordModal()">✕</button>
+  <div class="modal-header">
+    <div class="modal-icon"></div>
+    <h2 class="modal-title">Nouveau mot de passe</h2>
+    <p class="modal-subtitle">Choisissez un nouveau mot de passe sécurisé</p>
+  </div>
+  <form class="modal-form" (ngSubmit)="submitResetPassword()">
+    <div class="form-group">
+      <label>Nouveau mot de passe</label>
+      <input type="password" [(ngModel)]="newPassword" name="newPassword" placeholder="••••••••" required [class.input-valid]="newPasswordIsValid" [class.input-invalid]="newPassword.length > 0 && !newPasswordIsValid" />
+      <div class="password-rules" *ngIf="newPassword.length > 0">
+        <div class="rule" [class.rule-ok]="newPasswordHasMinLength" [class.rule-fail]="!newPasswordHasMinLength"><span class="rule-icon">{{ newPasswordHasMinLength ? '✓' : '✗' }}</span> Au moins 8 caractères</div>
+        <div class="rule" [class.rule-ok]="newPasswordHasUppercase" [class.rule-fail]="!newPasswordHasUppercase"><span class="rule-icon">{{ newPasswordHasUppercase ? '✓' : '✗' }}</span> Une lettre majuscule</div>
+        <div class="rule" [class.rule-ok]="newPasswordHasNumber" [class.rule-fail]="!newPasswordHasNumber"><span class="rule-icon">{{ newPasswordHasNumber ? '✓' : '✗' }}</span> Un chiffre</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Confirmer le mot de passe</label>
+      <input type="password" [(ngModel)]="confirmNewPassword" name="confirmNewPassword" placeholder="••••••••" required [class.input-valid]="newPasswordsMatch" [class.input-invalid]="confirmNewPassword.length > 0 && !newPasswordsMatch" />
+      <div class="confirm-hint" *ngIf="confirmNewPassword.length > 0">
+        <span *ngIf="newPasswordsMatch" class="hint-ok">✓ Les mots de passe correspondent</span>
+        <span *ngIf="!newPasswordsMatch" class="hint-fail">✗ Les mots de passe ne correspondent pas</span>
+      </div>
+    </div>
+    <div class="error-message" *ngIf="resetPasswordError">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      <span>{{ resetPasswordError }}</span>
+    </div>
+    <button type="submit" class="btn-submit" [disabled]="!newPasswordIsValid || !newPasswordsMatch" [class.btn-disabled]="!newPasswordIsValid || !newPasswordsMatch">Réinitialiser le mot de passe</button>
+  </form>
+</div>
+
+<!-- ===== POPUP SUCCÈS INSCRIPTION ===== -->
+<div class="modal-success" *ngIf="showSuccessModal">
+  <div class="success-icon-wrapper">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"></polyline></svg>
+  </div>
+  <h2 class="success-title">Demande bien reçue !</h2>
+  <p class="success-message">Votre demande d'inscription a été enregistrée avec succès.<br />Notre équipe va traiter votre dossier.</p>
+  <div class="success-note">Un email de confirmation vous sera envoyé à <strong>{{ signupForm.email }}</strong></div>
+  <button class="success-close-btn" (click)="closeSuccessModal()">Compris, merci !</button>
+</div>
+
+<!-- ===== POPUP SUCCÈS RÉINITIALISATION ===== -->
+<div class="modal-success" *ngIf="showForgotSuccessModal">
+  <div class="success-icon-wrapper" style="background: linear-gradient(135deg, #d1fae5, #a7f3d0)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+  </div>
+  <h2 class="success-title">Mot de passe réinitialisé !</h2>
+  <p class="success-message">Votre mot de passe a été modifié avec succès.<br />Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.</p>
+  <button class="success-close-btn" (click)="closeForgotSuccessModal()">Retour à la connexion</button>
+</div>

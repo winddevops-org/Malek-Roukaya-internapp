@@ -1,0 +1,501 @@
+<div class="editor-overlay">
+  <div class="editor-container">
+
+    <div class="editor-header">
+      <div class="header-left">
+        <div class="header-icon">📄</div>
+        <div>
+          <h2 class="editor-title">
+            {{ isEditMode ? 'Édition' : 'Éditeur' }} : {{ modelName }}
+          </h2>
+          <p class="editor-subtitle">{{ modelType }}</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="history-actions">
+          <button class="icon-btn" (click)="undo()" [disabled]="!canUndo" title="Annuler (Ctrl+Z)">⟲</button>
+          <button class="icon-btn" (click)="redo()" [disabled]="!canRedo" title="Rétablir (Ctrl+Y)">⟳</button>
+        </div>
+
+        <div class="separator"></div>
+
+        <button class="zoom-btn" (click)="zoomOut()" [disabled]="zoom <= minZoom" title="Zoom -">−</button>
+
+        <div class="zoom-input-wrapper">
+          <input
+            type="number"
+            class="zoom-input"
+            [value]="zoomPercent"
+            (change)="onZoomChange($event)"
+            (keyup.enter)="onZoomChange($event)"
+            [min]="minZoom * 100"
+            [max]="maxZoom * 100"
+            title="Saisissez un pourcentage (Entrée pour valider)"
+          />
+          <span class="zoom-suffix">%</span>
+        </div>
+
+        <button class="zoom-btn" (click)="zoomIn()" [disabled]="zoom >= maxZoom" title="Zoom +">+</button>
+
+        <button class="btn-save" (click)="onSave()">
+          {{ isEditMode ? 'Enregistrer' : 'Sauvegarder' }}
+        </button>
+
+        <button class="btn-close-header" (click)="onClose()">✕</button>
+      </div>
+    </div>
+
+    <div class="editor-body">
+      <div class="fields-palette" *ngIf="showPalette">
+        <div class="palette-header">
+          <h3 class="palette-title">Champs disponibles</h3>
+          <button
+            class="palette-toggle-btn"
+            type="button"
+            (click)="togglePalette()"
+            title="Masquer la palette de champs"
+          >
+            ‹
+          </button>
+        </div>
+
+        <p class="palette-hint">Glissez-déposez sur la page</p>
+
+        <div class="palette-fields">
+          <div
+            *ngFor="let field of availableFields"
+            class="palette-field"
+            draggable="true"
+            (dragstart)="onDragStart($event, field.type)"
+          >
+            <span class="field-icon">{{ field.icon }}</span>
+            <span class="field-label">{{ field.label }}</span>
+          </div>
+        </div>
+      </div>
+
+      <button
+        *ngIf="!showPalette"
+        class="palette-reopen-btn"
+        type="button"
+        (click)="togglePalette()"
+        title="Afficher la palette de champs"
+      >
+        >
+      </button>
+
+      <div class="center-area">
+        <div class="workspace" (click)="deselectField()">
+          <div class="zoom-host" [style.--editor-zoom]="zoom">
+            <div
+              #canvasRef
+              class="canvas a4-page"
+              (dragover)="onDragOver($event)"
+              (drop)="onDrop($event)"
+            >
+              <div class="canvas-empty" *ngIf="droppedFields.length === 0">
+                <p>Glissez-déposez des champs ici</p>
+              </div>
+
+              <div
+                *ngFor="let field of droppedFields"
+                [id]="field.fieldId"
+                class="canvas-field"
+                [class.selected]="selectedField?.fieldId === field.fieldId"
+                [class.shape-rect-field]="field.type === 'shape-rect'"
+                [style.left.px]="field.x"
+                [style.top.px]="field.y"
+                [style.width.px]="field.width"
+                [style.height.px]="field.height"
+                (click)="selectField(field, $event)"
+                (dblclick)="enableEditing(field, $event)"
+                cdkDrag
+                [cdkDragData]="field"
+                [cdkDragFreeDragPosition]="{ x: 0, y: 0 }"
+                [cdkDragDisabled]="editingFieldId === field.fieldId"
+                (cdkDragStarted)="onFieldDragStart($event, field)"
+                (cdkDragMoved)="onFieldDragMoved(field, $event)"
+                (cdkDragEnded)="onFieldDragEnd($event)"
+              >
+                <input
+                  *ngIf="field.type !== 'textarea' && field.type !== 'checkbox' && field.type !== 'image' && field.type !== 'table' && field.type !== 'shape-rect'"
+                  class="canvas-input"
+                  [style.pointer-events]="editingFieldId === field.fieldId ? 'auto' : 'none'"
+                  [type]="field.type"
+                  [(ngModel)]="field.value"
+                  [placeholder]="field.placeholder"
+                  (blur)="disableEditing()"
+                  (change)="saveState()"
+                  (mousedown)="$event.stopPropagation()"
+                  [ngStyle]="{
+                    'font-weight': field.bold ? '700' : '400',
+                    'font-style': field.italic ? 'italic' : 'normal',
+                    'text-decoration': field.underline ? 'underline' : 'none',
+                    'border': field.boxed ? '1px solid #0f172a' : 'none',
+                    'border-radius': field.boxed ? '4px' : '0',
+                    'font-size.px': field.fontSize || 14
+                  }"
+                />
+
+                <textarea
+                  *ngIf="field.type === 'textarea'"
+                  class="canvas-input"
+                  [style.pointer-events]="editingFieldId === field.fieldId ? 'auto' : 'none'"
+                  [(ngModel)]="field.value"
+                  [placeholder]="field.placeholder"
+                  (blur)="disableEditing()"
+                  (change)="saveState()"
+                  (mousedown)="$event.stopPropagation()"
+                  [ngStyle]="{
+                    'font-weight': field.bold ? '700' : '400',
+                    'font-style': field.italic ? 'italic' : 'normal',
+                    'text-decoration': field.underline ? 'underline' : 'none',
+                    'border': field.boxed ? '1px solid #0f172a' : 'none',
+                    'border-radius': field.boxed ? '4px' : '0'
+                  }"
+                ></textarea>
+
+                <input
+                  *ngIf="field.type === 'checkbox'"
+                  type="checkbox"
+                  class="canvas-input"
+                  [style.pointer-events]="editingFieldId === field.fieldId ? 'auto' : 'none'"
+                  [(ngModel)]="field.value"
+                  (blur)="disableEditing()"
+                  (change)="saveState()"
+                  (mousedown)="$event.stopPropagation()"
+                />
+
+                <img
+                  *ngIf="field.type === 'image' && field.value"
+                  [src]="field.value"
+                  class="canvas-image"
+                  draggable="false"
+                />
+                <div
+                  *ngIf="field.type === 'image' && !field.value"
+                  class="canvas-image-placeholder"
+                >
+                  <span>🖼️ Double-cliquez pour importer</span>
+                </div>
+
+                <div *ngIf="field.type === 'table'" class="canvas-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th *ngFor="let h of field.tableConfig?.headers; let i = index; trackBy: trackByIndex">
+                          <input 
+                            type="text" 
+                            [(ngModel)]="field.tableConfig.headers[i]" 
+                            (change)="saveState()"
+                            (mousedown)="$event.stopPropagation()"
+                            class="table-cell-input header-input"
+                          />
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let row of field.tableConfig?.data; let rowIndex = index; trackBy: trackByIndex">
+                        <td *ngFor="let cell of row; let colIndex = index; trackBy: trackByIndex">
+                          <input 
+                            type="text" 
+                            [(ngModel)]="field.tableConfig.data[rowIndex][colIndex]" 
+                            (change)="saveState()"
+                            (mousedown)="$event.stopPropagation()"
+                            class="table-cell-input"
+                          />
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div
+                  *ngIf="field.type === 'shape-rect'"
+                  class="shape-rectangle"
+                  [style.border-radius.px]="field.borderRadius ?? 0"
+                  [style.border-color]="field.borderColor ?? '#0f172a'"
+                  [style.border-width.px]="field.borderWidth ?? 2"
+                ></div>
+                <!-- Handles resize — positionnés via CSS selon shape-rect-field ou non -->
+                <span class="resize-handle tl" (mousedown)="startResize($event, field, 'tl')"></span>
+                <span class="resize-handle tr" (mousedown)="startResize($event, field, 'tr')"></span>
+                <span class="resize-handle bl" (mousedown)="startResize($event, field, 'bl')"></span>
+                <span class="resize-handle br" (mousedown)="startResize($event, field, 'br')"></span>
+
+                <button
+                  class="field-delete"
+                  (click)="deleteField(field); $event.stopPropagation()"
+                  title="Supprimer ce champ"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="resize-bar" (mousedown)="startResizeProperties($event)">
+          <button
+            class="resize-toggle-btn"
+            type="button"
+            (click)="toggleProperties(); $event.stopPropagation(); $event.preventDefault()"
+            [title]="showProperties ? 'Masquer le panneau de propriétés' : 'Afficher le panneau de propriétés'"
+          >
+            <span *ngIf="showProperties">›</span>
+            <span *ngIf="!showProperties"></span>
+          </button>
+        </div>
+
+        <div
+          class="properties-panel"
+          *ngIf="showProperties"
+          [style.width.px]="propertiesWidth"
+        >
+          <div class="panel-header-row">
+            <h3 class="panel-title">Propriétés</h3>
+            <button class="mobile-close-btn" (click)="toggleProperties()">✕</button>
+          </div>
+
+          <div *ngIf="selectedField" class="properties-content">
+            <div class="property-group">
+              <label class="property-label">Type</label>
+              <div class="property-readonly">
+                <span class="type-icon">{{ getFieldIcon(selectedField.type) }}</span>
+                <span>{{ getFieldTypeLabel(selectedField.type) }}</span>
+              </div>
+            </div>
+
+            <!-- Propriétés spécifiques au Rectangle — affichées en premier -->
+            <ng-container *ngIf="selectedField!.type === 'shape-rect'">
+              <div class="property-group">
+                <label class="property-label">Arrondi des angles (px)</label>
+                <input
+                  class="property-input"
+                  type="number"
+                  min="0"
+                  max="200"
+                  [(ngModel)]="selectedField!.borderRadius"
+                  (change)="saveState()"
+                />
+              </div>
+              <div class="property-group">
+                <label class="property-label">Couleur de la bordure</label>
+                <input
+                  class="property-input"
+                  type="color"
+                  [(ngModel)]="selectedField!.borderColor"
+                  (change)="saveState()"
+                  style="height: 36px; padding: 2px 4px; cursor: pointer;"
+                />
+              </div>
+              <div class="property-group">
+                <label class="property-label">Épaisseur de la bordure (px)</label>
+                <input
+                  class="property-input"
+                  type="number"
+                  min="1"
+                  max="20"
+                  [(ngModel)]="selectedField!.borderWidth"
+                  (change)="saveState()"
+                />
+              </div>
+            </ng-container>
+
+            <div class="property-group">
+              <label class="property-label">Label</label>
+              <input class="property-input" type="text" [(ngModel)]="selectedField!.label" (change)="saveState()" />
+            </div>
+
+            <div class="property-group" *ngIf="selectedField!.type === 'text' || selectedField!.type === 'textarea' || selectedField!.type === 'date'">
+              <label class="property-label">Style du texte</label>
+              <div class="text-style-buttons">
+                <button
+                  type="button"
+                  class="text-style-btn"
+                  [class.active]="selectedField!.bold"
+                  (click)="selectedField!.bold = !selectedField!.bold; saveState()"
+                >
+                  B
+                </button>
+                <button
+                  type="button"
+                  class="text-style-btn"
+                  [class.active]="selectedField!.italic"
+                  (click)="selectedField!.italic = !selectedField!.italic; saveState()"
+                >
+                  I
+                </button>
+                <button
+                  type="button"
+                  class="text-style-btn"
+                  [class.active]="selectedField!.underline"
+                  (click)="selectedField!.underline = !selectedField!.underline; saveState()"
+                >
+                  U
+                </button>
+              </div>
+            </div>
+            <!-- Liaison au champ réel (documentKey) -->
+            <div
+              class="property-group"
+              *ngIf="selectedField!.type === 'text' || selectedField!.type === 'textarea' || selectedField!.type === 'date' || selectedField!.type === 'table'"
+            >
+              <label class="property-label">Champ réel lié</label>
+              
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <select
+                  class="property-input"
+                  style="flex: 1;"
+                  [(ngModel)]="selectedField!.documentKey"
+                  (change)="saveState()"
+                >
+                  <option [ngValue]="null">— Aucun / Autre —</option>
+                  <option
+                    *ngFor="let tf of availableDocumentFields"
+                    [ngValue]="tf.fieldName"
+                  >
+                    {{ tf.fieldName }}
+                  </option>
+                </select>
+                <button 
+                  class="btn-secondary" 
+                  style="padding: 8px 12px; height: 35px;" 
+                  (click)="toggleNewFieldForm()"
+                  title="Créer un nouveau champ réel"
+                >
+                  ➕
+                </button>
+              </div>
+
+              <div *ngIf="showNewFieldForm" class="new-field-inline">
+                <label class="property-label" style="font-size: 11px; color: #2563eb;">Nom du nouveau champ :</label>
+                <input 
+                  type="text" 
+                  class="property-input" 
+                  [(ngModel)]="newFieldName" 
+                  placeholder="Ex : Adresse Client" 
+                  (keyup.enter)="createNewRealField()"
+                />
+                <div style="display: flex; gap: 6px; justify-content: flex-end; margin-top: 6px;">
+                  <button class="btn-cancel-small" (click)="toggleNewFieldForm()">Annuler</button>
+                  <button class="btn-save-small" (click)="createNewRealField()" [disabled]="isSavingNewField">
+                    {{ isSavingNewField ? '...' : 'Valider' }}
+                  </button>
+                </div>
+                <p *ngIf="newFieldErrorMessage" style="color: #ef4444; font-size: 11px; margin: 4px 0 0;">
+                  {{ newFieldErrorMessage }}
+                </p>
+              </div>
+            </div>
+            <div class="property-group" *ngIf="selectedField!.type === 'table'">
+              <label class="property-label">Dimensions du Tableau</label>
+              <div class="table-dimensions">
+                <div class="dim-input">
+                  <span>Lignes</span>
+                  <input 
+                    class="property-input" 
+                    type="number" 
+                    min="1" 
+                    [ngModel]="selectedField!.tableConfig?.rows" 
+                    (ngModelChange)="updateTableDimensions(selectedField!, $event, selectedField!.tableConfig?.cols)" 
+                  />
+                </div>
+                <div class="dim-input">
+                  <span>Colonnes</span>
+                  <input 
+                    class="property-input" 
+                    type="number" 
+                    min="1" 
+                    [ngModel]="selectedField!.tableConfig?.cols" 
+                    (ngModelChange)="updateTableDimensions(selectedField!, selectedField!.tableConfig?.rows, $event)" 
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="property-group"
+              *ngIf="selectedField!.type !== 'image' && selectedField!.type !== 'checkbox' && selectedField!.type !== 'table'"
+            >
+              <label class="property-label">Encadrer le champ</label>
+              <label class="property-readonly" style="cursor: pointer;">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="selectedField!.boxed"
+                  (ngModelChange)="saveState()"
+                  style="margin-right: 8px; width: 14px; height: 14px;"
+                />
+                <span>Afficher une bordure autour du texte</span>
+              </label>
+            </div>
+
+            <div
+              class="property-group"
+              *ngIf="selectedField!.type === 'text' || selectedField!.type === 'textarea' || selectedField!.type === 'date'"
+            >
+              <label class="property-label">Taille du texte (px)</label>
+              <input
+                class="property-input"
+                type="number"
+                min="8"
+                max="72"
+                [(ngModel)]="selectedField!.fontSize"
+                (change)="saveState()"
+              />
+            </div>
+
+            <div class="property-group" *ngIf="selectedField!.type !== 'image' && selectedField!.type !== 'table'">
+              <label class="property-label">Contenu/Valeur</label>
+              <input class="property-input" type="text" [(ngModel)]="selectedField!.value" (change)="saveState()" />
+            </div>
+
+            <div class="property-group" *ngIf="selectedField!.type === 'image'">
+              <label class="property-label">Source de l'image</label>
+              <button class="btn-secondary" (click)="triggerImageUpload(selectedField!)">
+                📁 Changer l'image...
+              </button>
+            </div>
+
+            <div class="property-group">
+              <label class="property-label">Largeur (px)</label>
+              <input class="property-input" type="number" [(ngModel)]="selectedField!.width" min="100" (change)="saveState()" />
+            </div>
+
+            <div class="property-group">
+              <label class="property-label">Hauteur (px)</label>
+              <input class="property-input" type="number" [(ngModel)]="selectedField!.height" min="30" (change)="saveState()" />
+            </div>
+
+            <div class="property-group">
+              <label class="property-label">Position X (px)</label>
+              <input class="property-input" type="number" [(ngModel)]="selectedField!.x" (change)="saveState()" />
+            </div>
+
+            <div class="property-group">
+              <label class="property-label">Position Y (px)</label>
+              <input class="property-input" type="number" [(ngModel)]="selectedField!.y" (change)="saveState()" />
+            </div>
+
+            <button class="btn-delete-field" (click)="deleteField(selectedField!)">
+              🗑️ Supprimer le champ
+            </button>
+            
+          </div>
+
+          <div *ngIf="!selectedField" class="properties-empty">
+            <p>Sélectionnez un champ pour modifier ses propriétés</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <input
+    type="file"
+    #fileInput
+    style="display: none"
+    accept="image/png, image/jpeg, image/jpg, image/svg+xml"
+    (change)="onImageSelected($event)"
+  />
+</div>

@@ -1,0 +1,63 @@
+<div class="trash-page">
+  <div class="trash-header">
+    <h2>Corbeille</h2>
+    <p>Les modèles supprimés sont conservés 5 jours avant suppression définitive.</p>
+  </div>
+
+  <p *ngIf="loading">Chargement...</p>
+  <p *ngIf="!loading && trashedModels.length === 0">Aucun modèle dans la corbeille.</p>
+
+  <div class="trash-list" *ngIf="!loading && trashedModels.length > 0">
+    <div class="trash-card" *ngFor="let model of trashedModels">
+      <div class="trash-info">
+        <h3>{{ model.name }}</h3>
+        <p>Type: {{ getTypeLabel(model) }}</p>
+        <p class="danger">
+          Suppression définitive dans {{ daysLeft(model) }} jour(s)
+        </p>
+      </div>
+
+      <div class="trash-actions">
+        <button class="btn-restore" type="button" (click)="$event.stopPropagation(); restore(model)">
+  Restaurer
+</button>
+<button class="btn-delete" type="button" (click)="$event.stopPropagation(); hardDelete(model)">
+  Supprimer définitivement
+</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="popup-overlay" *ngIf="showDeleteConfirmPopup" (click)="closeOnOverlay($event)">
+  <div class="popup" (click)="$event.stopPropagation()">
+    <div class="popup-header">
+      <div class="popup-icon" style="color: #ef4444; background: #fef2f2;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="3,6 5,6 21,6"/>
+          <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+          <path d="M10 11v6M14 11v6"/>
+          <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+        </svg>
+      </div>
+      <div>
+        <h3 class="popup-title">Supprimer définitivement</h3>
+        <p class="popup-sub">Cette action est irréversible</p>
+      </div>
+      <button class="popup-close" (click)="cancelHardDelete()">✕</button>
+    </div>
+    
+    <div class="popup-body">
+      <p style="font-family: 'DM Sans', sans-serif; font-size: 14px; color: #475569; margin: 0; line-height: 1.5;">
+        Êtes-vous sûr de vouloir supprimer définitivement le modèle <strong>"{{ modelToDelete?.name }}"</strong> ?<br><br>
+        <span style="color: #ef4444; font-size: 13px;">Attention : Il ne pourra plus être restauré.</span>
+      </p>
+    </div>
+
+    <div class="popup-footer">
+      <button class="btn-cancel" (click)="cancelHardDelete()">Annuler</button>
+      <button class="btn-confirm btn-confirm-danger" (click)="confirmHardDelete()">
+        Supprimer
+      </button>
+    </div>
+  </div>
+</div>

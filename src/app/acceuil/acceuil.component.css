@@ -1,0 +1,1476 @@
+/* ============================================
+   CSS ORIGINAL — INCHANGÉ
+   ============================================ */
+/* ==============================
+   BRAND BADGE
+   ============================== */
+.brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 1.1rem 0.45rem 0.7rem;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(102, 126, 234, 0.25);
+  border-radius: 100px;
+  backdrop-filter: blur(10px);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #4a5568;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 12px rgba(102, 126, 234, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  animation: badgeFadeIn 0.6s ease both;
+  cursor: default;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.brand-badge:hover {
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transform: translateY(-1px);
+}
+
+.brand-badge::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #667eea;
+  box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.5);
+  animation: livePulse 2.2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes livePulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.55);
+  }
+  60% {
+    box-shadow: 0 0 0 6px rgba(102, 126, 234, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+  }
+}
+
+@keyframes badgeFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==============================
+     WELCOME TITLE
+     ============================== */
+.welcome-title span {
+  position: relative;
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.welcome-title span::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  border-radius: 100px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  opacity: 0.35;
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: lineGrow 0.7s ease 0.7s both;
+}
+
+@keyframes lineGrow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ==============================
+     WELCOME SUBTITLE
+     ============================== */
+.welcome-subtitle {
+  font-size: 1.05rem;
+  font-weight: 300;
+  font-style: italic;
+  color: #4a5568;
+  text-align: center;
+  line-height: 1.75;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+  padding: 1.1rem 1.5rem;
+}
+
+.welcome-subtitle::before,
+.welcome-subtitle::after {
+  font-size: 4rem;
+  line-height: 1;
+  color: rgba(102, 126, 234, 0.15);
+  position: absolute;
+  font-style: normal;
+}
+
+.welcome-subtitle::before {
+  content: "\201C";
+  top: -0.3rem;
+  left: 0;
+}
+
+.welcome-subtitle::after {
+  content: "\201D";
+  bottom: -1.2rem;
+  right: 0;
+}
+
+.welcome-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  padding: 2rem;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rem;
+  max-width: 800px;
+  width: 100%;
+}
+
+.welcome-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #1a202c;
+  text-align: center;
+  margin: 0;
+  line-height: 1.2;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 1s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes fadeOverlay {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.buttons-group {
+  display: flex;
+  gap: 2rem;
+  animation: fadeIn 1.2s ease-in;
+}
+
+.btn {
+  padding: 1rem 3rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.6s ease;
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+.btn-signup {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+}
+
+.btn-signup:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+}
+
+.btn-signup:active {
+  transform: translateY(-2px);
+}
+
+.btn-login {
+  background: #ffffff;
+  color: #667eea;
+  border: 2px solid #667eea;
+}
+
+.btn-login:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+}
+
+.btn-login:active {
+  transform: translateY(-2px);
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  animation: fadeOverlay 0.3s ease;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 480px;
+  z-index: 1000;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+  animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  background: #f0f0f0;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+  background: #fc8181;
+  color: #fff;
+  transform: rotate(90deg);
+}
+
+.modal-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.modal-icon {
+  font-size: 2rem;
+  color: #667eea;
+  margin-bottom: 0.75rem;
+}
+
+.modal-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 0.5rem;
+}
+
+.modal-subtitle {
+  font-size: 1rem;
+  color: #718096;
+  margin: 0;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.form-group input {
+  padding: 0.85rem 1.1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #2d3748;
+  background: #f8fafc;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  outline: none;
+}
+
+.form-group input::placeholder {
+  color: #a0aec0;
+}
+
+.form-group input:focus {
+  border-color: #667eea;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+/* ─── États de validation des inputs ─────────────────────────────────────── */
+.form-group input.input-valid {
+  border-color: #48bb78;
+  background: #f0fff4;
+}
+
+.form-group input.input-valid:focus {
+  border-color: #48bb78;
+  box-shadow: 0 0 0 4px rgba(72, 187, 120, 0.15);
+}
+
+.form-group input.input-invalid {
+  border-color: #fc8181;
+  background: #fff5f5;
+}
+
+.form-group input.input-invalid:focus {
+  border-color: #fc8181;
+  box-shadow: 0 0 0 4px rgba(252, 129, 129, 0.15);
+}
+
+/* ─── Règles de mot de passe ─────────────────────────────────────────────── */
+.password-rules {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.6rem 0.8rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  animation: fadeRules 0.3s ease;
+}
+
+@keyframes fadeRules {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rule {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #a0aec0;
+  transition: color 0.3s ease;
+}
+
+.rule-icon {
+  font-size: 0.75rem;
+  width: 14px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.rule.rule-ok {
+  color: #38a169;
+}
+
+.rule.rule-fail {
+  color: #e53e3e;
+}
+
+/* ─── Confirmation mot de passe hint ────────────────────────────────────── */
+.confirm-hint {
+  font-size: 0.78rem;
+  font-weight: 500;
+  animation: fadeRules 0.3s ease;
+}
+
+.hint-ok {
+  color: #38a169;
+}
+
+.hint-fail {
+  color: #e53e3e;
+}
+
+/* ─── Bouton désactivé ───────────────────────────────────────────────────── */
+.btn-submit {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+  font-family: inherit;
+  margin-top: 0.5rem;
+}
+
+.btn-submit::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.6s ease;
+}
+
+.btn-submit:hover::before {
+  left: 100%;
+}
+
+.btn-submit:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+}
+
+.btn-submit:active {
+  transform: translateY(-1px);
+}
+
+.btn-submit.btn-disabled,
+.btn-submit:disabled {
+  background: linear-gradient(135deg, #cbd5e0, #a0aec0);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+  opacity: 0.7;
+}
+
+.btn-submit.btn-disabled:hover,
+.btn-submit:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.forgot-password {
+  text-align: right;
+  font-size: 0.88rem;
+  color: #667eea;
+  cursor: pointer;
+  margin: -0.5rem 0;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.forgot-password:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+.switch-text {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #718096;
+  margin: 0;
+}
+
+.switch-link {
+  color: #667eea;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.switch-link:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .welcome-title {
+    font-size: 2.5rem;
+  }
+  .buttons-group {
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 300px;
+  }
+  .btn {
+    width: 100%;
+    padding: 1rem 2rem;
+  }
+  .modal {
+    padding: 2rem 1.5rem;
+    max-width: 95vw;
+  }
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .welcome-title {
+    font-size: 2rem;
+  }
+  .content {
+    gap: 2rem;
+  }
+}
+
+/* ============================================
+     MODALS SUCCÈS
+     ============================================ */
+
+@keyframes checkPop {
+  0% {
+    transform: scale(0) rotate(-10deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15) rotate(3deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+}
+
+@keyframes successSlideUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 30px));
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.modal-success {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 3rem 2.5rem;
+  width: 100%;
+  max-width: 420px;
+  z-index: 1001;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  animation: successSlideUp 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.success-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  animation: checkPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+}
+
+.success-icon-wrapper svg {
+  width: 38px;
+  height: 38px;
+  color: #059669;
+  stroke-width: 2.5;
+}
+
+.success-title {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 0.75rem;
+}
+
+.success-message {
+  font-size: 0.97rem;
+  color: #718096;
+  line-height: 1.65;
+  margin: 0 0 1rem;
+}
+
+.success-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 0.65rem 1.1rem;
+  font-size: 0.85rem;
+  color: #065f46;
+  font-weight: 500;
+  margin-bottom: 2rem;
+  word-break: break-word;
+}
+
+.success-close-btn {
+  display: block;
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  font-family: inherit;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.success-close-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.6s ease;
+}
+
+.success-close-btn:hover::before {
+  left: 100%;
+}
+
+.success-close-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+}
+
+.success-close-btn:active {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 480px) {
+  .modal-success {
+    max-width: 92vw;
+    padding: 2.5rem 1.5rem;
+  }
+  .success-title {
+    font-size: 1.4rem;
+  }
+}
+.error-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.9rem 1.1rem;
+  background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+  border: 1.5px solid #fc8181;
+  border-radius: 12px;
+  color: #c53030;
+  font-size: 0.88rem;
+  font-weight: 500;
+  line-height: 1.5;
+  animation: errorSlideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 12px rgba(252, 129, 129, 0.15);
+}
+
+.error-message svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: #e53e3e;
+  margin-top: 0.1rem;
+}
+
+.error-message span {
+  flex: 1;
+}
+
+@keyframes errorSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Animation de shake pour attirer l'attention */
+@keyframes errorShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-4px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+.error-message {
+  animation: errorSlideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    errorShake 0.5s ease 0.35s;
+}
+/* ============================================
+   STYLES POUR LES NOUVEAUX CHAMPS
+   ============================================ */
+
+/* Select dropdown */
+.form-group select {
+  padding: 0.85rem 1.1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #2d3748;
+  background: #f8fafc;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+  width: 100%;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a0aec0' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.2rem;
+  padding-right: 3rem;
+}
+
+.form-group select:focus {
+  border-color: #667eea;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.form-group select option {
+  padding: 0.75rem;
+  background: #ffffff;
+  color: #2d3748;
+}
+
+.form-group select option:disabled {
+  color: #a0aec0;
+}
+
+/* Input téléphone */
+input[type="tel"] {
+  font-family: "Courier New", monospace;
+  letter-spacing: 0.5px;
+}
+
+/* ============================================
+   POPUP OTP
+   ============================================ */
+
+.otp-input {
+  text-align: center;
+  font-size: 2rem !important;
+  font-weight: 700;
+  letter-spacing: 1rem;
+  padding: 1.2rem !important;
+  font-family: "Courier New", monospace;
+}
+
+.form-hint {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #718096;
+  font-style: italic;
+}
+
+/* ============================================
+   MESSAGES D'ERREUR
+   ============================================ */
+
+.error-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.9rem 1.1rem;
+  background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+  border: 1.5px solid #fc8181;
+  border-radius: 12px;
+  color: #c53030;
+  font-size: 0.88rem;
+  font-weight: 500;
+  line-height: 1.5;
+  animation: errorSlideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 12px rgba(252, 129, 129, 0.15);
+  margin-bottom: 1rem;
+}
+
+.error-message svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: #e53e3e;
+  margin-top: 0.1rem;
+}
+
+.error-message span {
+  flex: 1;
+}
+
+@keyframes errorSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes errorShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-4px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+.error-message {
+  animation: errorSlideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    errorShake 0.5s ease 0.35s;
+}
+
+/* ============================================
+   RESPONSIVE POUR LES NOUVEAUX CHAMPS
+   ============================================ */
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .otp-input {
+    font-size: 1.5rem !important;
+    letter-spacing: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal {
+    padding: 2rem 1.5rem;
+    max-width: 95vw;
+  }
+
+  .otp-input {
+    font-size: 1.2rem !important;
+    letter-spacing: 0.3rem;
+    padding: 1rem !important;
+  }
+}
+/* ===== RESPONSIVE MOBILE ===== */
+@media (max-width: 768px) {
+  .welcome-title {
+    font-size: 2.2rem;
+  }
+
+  .welcome-subtitle {
+    font-size: 0.95rem;
+    padding: 1rem;
+  }
+
+  .buttons-group {
+    flex-direction: column;
+    width: 100%;
+    max-width: 320px;
+    gap: 1rem;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 1rem;
+  }
+
+  /* Modales d'inscription et connexion */
+  .modal, .modal-success {
+    padding: 1.5rem;
+    max-width: 95vw;
+    max-height: 90vh; /* Empêche la modale de sortir de l'écran */
+    overflow-y: auto; /* Active le scroll à l'intérieur du formulaire */
+    border-radius: 16px;
+  }
+
+  .modal-title {
+    font-size: 1.5rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr; /* Empile les champs (ex: Nom puis Matricule) */
+    gap: 0;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .otp-input {
+    font-size: 1.5rem !important;
+    letter-spacing: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .welcome-title {
+    font-size: 1.8rem;
+  }
+  .otp-input {
+    font-size: 1.2rem !important;
+    letter-spacing: 0.3rem;
+  }
+}
+
+/*
+======================================================
+   STYLES POUR LA LIBRAIRIE ngx-intl-tel-input
+   (A ajouter à la fin du fichier CSS existant)
+======================================================
+*/
+
+/* Validation du téléphone — on neutralise ng-valid/ng-invalid de Angular
+   et on se base uniquement sur nos classes phone-valid / phone-error */
+
+/* État par défaut (vide, non touché) */
+::ng-deep .custom-phone-input {
+  width: 100%;
+  padding-top: 0.85rem;
+  padding-bottom: 0.85rem;
+  padding-right: 1.1rem;
+  border: 2px solid #e2e8f0 !important;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #2d3748;
+  background: #f8fafc !important;
+  transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  height: 48px;
+}
+
+::ng-deep .custom-phone-input:focus {
+  border-color: #667eea !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1) !important;
+}
+
+/* Neutraliser complètement ng-valid / ng-invalid de Angular sur cet input */
+::ng-deep .custom-phone-input.ng-valid,
+::ng-deep .custom-phone-input.ng-valid.ng-touched,
+::ng-deep .custom-phone-input.ng-invalid,
+::ng-deep .custom-phone-input.ng-invalid.ng-touched {
+  border-color: #e2e8f0 !important;
+  background: #f8fafc !important;
+  box-shadow: none !important;
+}
+
+/* ✅ Valide : numéro complet et correct */
+::ng-deep ngx-intl-tel-input.phone-valid .custom-phone-input,
+::ng-deep ngx-intl-tel-input.phone-valid .custom-phone-input.ng-valid,
+::ng-deep ngx-intl-tel-input.phone-valid .custom-phone-input.ng-touched {
+  border-color: #48bb78 !important;
+  background: #f0fff4 !important;
+}
+
+::ng-deep ngx-intl-tel-input.phone-valid .custom-phone-input:focus {
+  border-color: #48bb78 !important;
+  box-shadow: 0 0 0 4px rgba(72, 187, 120, 0.15) !important;
+}
+
+/* ❌ Invalide : touché ou soumission tentée */
+::ng-deep ngx-intl-tel-input.phone-error .custom-phone-input,
+::ng-deep ngx-intl-tel-input.phone-error .custom-phone-input.ng-valid,
+::ng-deep ngx-intl-tel-input.phone-error .custom-phone-input.ng-invalid {
+  border-color: #fc8181 !important;
+  background: #fff5f5 !important;
+}
+
+::ng-deep ngx-intl-tel-input.phone-error .custom-phone-input:focus {
+  border-color: #fc8181 !important;
+  box-shadow: 0 0 0 4px rgba(252, 129, 129, 0.15) !important;
+}
+
+/* Fixes pour le conteneur du drapeau et du menu */
+::ng-deep .iti {
+  width: 100%;
+  display: block;
+}
+
+::ng-deep .iti__flag-container {
+  z-index: 10;
+}
+
+/* Centre le drapeau et le préfixe verticalement */
+::ng-deep .iti__selected-flag {
+  border-radius: 10px 0 0 10px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+}
+
+::ng-deep .iti__country-list {
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e2e8f0;
+  max-width: 350px;
+
+  /* Lignes ajoutées pour corriger le scroll dans la modale : */
+  position: absolute !important;
+  z-index: 9999 !important; /* Pour être sûr de passer par-dessus la modale */
+  max-height: 250px !important; /* Force une hauteur max pour la liste */
+  overflow-y: auto !important; /* Active le scroll vertical de la liste */
+  background-color: white; /* Sécurité pour le fond */
+  white-space: normal; /* Évite que les noms longs cassent l'affichage */
+}
+
+/* On s'assure aussi que le champ de recherche ne soit pas bloqué */
+::ng-deep .iti__country-list .search-container input {
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+::ng-deep .custom-country-select .ng-select-container {
+  min-height: 48px !important;
+  border: 2px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  background-color: #f8fafc !important;
+  font-family: inherit !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+}
+
+/* État Focus / Ouvert */
+::ng-deep .custom-country-select.ng-select-opened .ng-select-container,
+::ng-deep .custom-country-select.ng-select-focused .ng-select-container {
+  border-color: #667eea !important;
+  background-color: #fff !important;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1) !important;
+}
+
+/* Alignement du contenu (Drapeau + Texte) */
+::ng-deep .custom-country-select .ng-value-container {
+  padding-left: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Suppression de la bordure interne par défaut */
+::ng-deep .custom-country-select .ng-select-container:after {
+  display: none !important;
+}
+
+/* Input de recherche interne */
+::ng-deep .custom-country-select .ng-input > input {
+  font-family: inherit !important;
+}
+
+/* Placeholder */
+::ng-deep .custom-country-select .ng-placeholder {
+  color: #a0aec0 !important;
+  font-size: 0.95rem !important;
+}
+
+/* Valeur sélectionnée */
+::ng-deep .custom-country-select .ng-value {
+  display: flex !important;
+  align-items: center !important;
+  font-size: 0.95rem !important;
+  color: #2d3748 !important;
+}
+
+/* Style de la liste déroulante */
+::ng-deep .ng-dropdown-panel {
+  border-radius: 12px !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+  margin-top: 4px;
+  z-index: 9999 !important;
+}
+
+::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items {
+  max-height: 220px !important;
+  overflow-y: auto !important;
+}
+
+::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items .ng-option {
+  padding: 8px 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  font-size: 0.9rem !important;
+  color: #2d3748 !important;
+}
+
+::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-marked {
+  background-color: #f0f4ff !important;
+  color: #667eea !important;
+}
+
+::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected {
+  background-color: #eef2ff !important;
+  color: #4f46e5 !important;
+  font-weight: 600 !important;
+}
+
+/* Style des drapeaux dans la liste */
+.country-flag {
+  margin-right: 8px;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+/* ============================================
+   CORRECTIONS AFFICHAGE ng-select PAYS
+   ============================================ */
+
+/* Le template ng-label-tmp génère un div dans .ng-value-label — il faut aligner */
+::ng-deep .custom-country-select .ng-value-label {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 0.95rem !important;
+  color: #2d3748 !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+}
+
+::ng-deep .custom-country-select .ng-value-label div {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  overflow: hidden !important;
+}
+
+::ng-deep .custom-country-select .ng-value-label div span:last-child {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Options dans la liste déroulante */
+::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items .ng-option div {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+/* Assure que .ng-value ne cache pas le contenu */
+::ng-deep .custom-country-select .ng-value {
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+/* Scrollbar style for dropdown */
+::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items::-webkit-scrollbar {
+  width: 6px;
+}
+::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 10px;
+}
+::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+/* ============================================
+   DROPDOWN PAYS CUSTOM (remplace ng-select)
+   ============================================ */
+
+.country-dropdown-wrapper {
+  position: relative;
+}
+
+/* Bouton déclencheur (imite un input) */
+.country-select-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 1.1rem;
+  height: 48px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #2d3748;
+  transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
+  position: relative;
+}
+
+.country-select-trigger:hover {
+  border-color: #a0aec0;
+}
+
+.country-select-trigger.open {
+  border-color: #667eea;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.country-flag-display {
+  font-size: 1.2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.country-name-display {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.country-placeholder {
+  flex: 1;
+  color: #a0aec0;
+}
+
+.country-arrow {
+  font-size: 0.85rem;
+  color: #a0aec0;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.country-arrow.rotated {
+  transform: rotate(180deg);
+}
+
+/* Panel déroulant */
+.country-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  animation: dropdownFadeIn 0.15s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Barre de recherche */
+.country-search-box {
+  padding: 8px 10px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.country-search-input {
+  width: 100%;
+  padding: 7px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-family: inherit;
+  outline: none;
+  background: #f8fafc;
+  color: #2d3748;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.country-search-input:focus {
+  border-color: #667eea;
+  background: #fff;
+}
+
+.country-search-input::placeholder {
+  color: #a0aec0;
+}
+
+/* Liste des options */
+.country-options-list {
+  max-height: 210px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.country-options-list::-webkit-scrollbar {
+  width: 5px;
+}
+.country-options-list::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+.country-options-list::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 10px;
+}
+
+.country-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #2d3748;
+  transition: background 0.15s;
+}
+
+.country-option:hover {
+  background: #f0f4ff;
+  color: #667eea;
+}
+
+.country-option.selected {
+  background: #eef2ff;
+  color: #4f46e5;
+  font-weight: 600;
+}
+
+.opt-flag {
+  font-size: 1.15rem;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 22px;
+  text-align: center;
+}
+
+.opt-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.country-no-result {
+  padding: 12px 14px;
+  text-align: center;
+  color: #a0aec0;
+  font-size: 0.88rem;
+  font-style: italic;
+}

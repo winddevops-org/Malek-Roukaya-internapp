@@ -1,0 +1,52 @@
+<div class="type-fields-overlay" *ngIf="visible" (click)="onOverlayClick($event)">
+  <div class="type-fields-dialog">
+    <h2>Structure des champs de {{ typeName || 'ce type' }}</h2>
+    <p class="type-fields-subtitle">Ces champs seront demandés lorsque vous créerez des documents de type "{{ typeName || 'document' }}".</p>
+
+    <div *ngIf="isLoading" class="status-message">Chargement des champs...</div>
+
+    <div *ngIf="!isLoading">
+      <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+      <div class="fields-list">
+        <div class="field-card" *ngFor="let field of fields; let i = index">
+          
+          <div class="field-main">
+            <div class="input-group">
+              <label>Nom du champ {{ i + 1 }}</label>
+              <input type="text" [(ngModel)]="field.fieldName" placeholder="Ex: Acheteur, Date, Lignes..." />
+            </div>
+            <div class="input-group type-group">
+              <label>Type</label>
+              <select [(ngModel)]="field.fieldType" (change)="onTypeChange(field)">
+                <option value="text">Texte</option>
+                <option value="date">Date</option>
+                <option value="table">Tableau</option>
+              </select>
+            </div>
+            <button type="button" class="btn-remove" (click)="removeField(i)" [disabled]="fields.length === 1">✕</button>
+          </div>
+
+          <div class="table-builder" *ngIf="field.fieldType === 'table'">
+            <label class="table-builder-title">Colonnes du tableau :</label>
+            <div class="col-row" *ngFor="let col of field._columnsArray; let c = index; trackBy: trackByIndex">
+              <span class="col-number">{{ c + 1 }}</span>
+              <input type="text" [(ngModel)]="field._columnsArray![c]" placeholder="Ex: Désignation..." />
+              <button type="button" class="btn-remove-col" (click)="removeColumn(field, c)" [disabled]="field._columnsArray!.length === 1">✕</button>
+            </div>
+            <button type="button" class="btn-add-col" (click)="addColumn(field)">+ Ajouter une colonne</button>
+          </div>
+
+        </div>
+      </div>
+
+      <button type="button" class="btn-add" (click)="addField()">+ Ajouter un champ</button>
+      <div class="dialog-actions">
+        <button type="button" class="btn-cancel" (click)="cancel()">Annuler</button>
+        <button type="button" class="btn-save" (click)="save()" [disabled]="isSaving">
+          {{ isSaving ? 'Sauvegarde...' : 'Valider la structure' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

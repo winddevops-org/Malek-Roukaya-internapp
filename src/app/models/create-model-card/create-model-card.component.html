@@ -1,0 +1,101 @@
+<div class="models-list">
+  <div class="list-header">
+    <div class="list-title">
+      <div class="title-icon" [class]="modelType">
+        <svg *ngIf="modelType === 'facture'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+          <polyline points="14,2 14,8 20,8"/>
+          <line x1="8" y1="13" x2="16" y2="13"/>
+          <line x1="8" y1="17" x2="12" y2="17"/>
+        </svg>
+        <svg *ngIf="modelType === 'attestation'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <polyline points="9,12 11,14 15,10"/>
+        </svg>
+      </div>
+      <div>
+        <h2 class="list-heading">
+          {{ modelType === 'facture' ? 'Modèles de Factures' : "Modèles d'Attestations" }}
+        </h2>
+        <p class="list-count">{{ filteredModels.length }} modèle(s) disponible(s)</p>
+      </div>
+    </div>
+
+    <button class="btn-create-header" (click)="openCreatePopup()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Créer un modèle
+    </button>
+  </div>
+
+  <div class="cards-grid">
+    <app-model-card
+      *ngFor="let model of filteredModels"
+      [model]="model"
+      (view)="onView($event)"
+      (edit)="onEdit($event)"
+      (delete)="onDelete($event)"
+    ></app-model-card>
+  </div>
+
+  <div class="empty-state" *ngIf="filteredModels.length === 0">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/>
+      <polyline points="13,2 13,9 20,9"/>
+    </svg>
+    <p>Aucun modèle pour l'instant</p>
+    <span>Cliquez sur "Créer un modèle" pour commencer</span>
+  </div>
+</div>
+
+<!-- POPUP -->
+<div class="popup-overlay" *ngIf="showPopup" (click)="closeOnOverlay($event)">
+  <div class="popup" role="dialog">
+
+    <div class="popup-header">
+      <div class="popup-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+          <polyline points="14,2 14,8 20,8"/>
+        </svg>
+      </div>
+      <div>
+        <h3 class="popup-title">Nouveau modèle</h3>
+        <p class="popup-sub">{{ modelType === 'facture' ? 'Facture' : 'Attestation' }}</p>
+      </div>
+      <button class="popup-close" (click)="closePopup()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="popup-body">
+      <label class="field-label">Nom du modèle</label>
+      <input
+        class="field-input"
+        type="text"
+        placeholder="Ex : Facture Standard 2025"
+        [(ngModel)]="newModelName"
+        (keydown.enter)="confirmCreate()"
+        #nameInput
+      />
+      <p class="field-error" *ngIf="showError">Veuillez saisir un nom.</p>
+    </div>
+
+    <div class="popup-footer">
+      <button class="btn-cancel" (click)="closePopup()">Annuler</button>
+      <button class="btn-confirm" (click)="confirmCreate()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Créer
+      </button>
+    </div>
+
+  </div>
+</div>

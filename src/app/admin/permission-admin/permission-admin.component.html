@@ -1,0 +1,126 @@
+<!-- src/app/admin/permission-admin/permission-admin.component.html -->
+<div class="page-container">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Permissions</h1>
+      <p class="page-subtitle">
+        Gérer les permissions personnalisées globales de la plateforme
+      </p>
+    </div>
+  </header>
+
+  <!-- Formulaire de création -->
+  <section class="card card-form">
+    <h2 class="card-title">Créer une permission</h2>
+    <p class="card-text">
+      Définissez une permission que vous pourrez ensuite attribuer aux utilisateurs.
+    </p>
+
+    <form (ngSubmit)="createPermission()" class="form-row">
+      <div class="form-field">
+        <label for="permissionLabel">Nom de la permission</label>
+        <input
+          id="permissionLabel"
+          type="text"
+          [(ngModel)]="newPermissionLabel"
+          name="permissionLabel"
+          placeholder="Ex : Gestion des modèles"
+        />
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="isCreating || !newPermissionLabel.trim()"
+      >
+        <span *ngIf="!isCreating">Ajouter</span>
+        <span *ngIf="isCreating" class="loader"></span>
+      </button>
+    </form>
+  </section>
+
+  <!-- Tableau des permissions -->
+  <section class="card">
+    <div class="card-header">
+      <h2 class="card-title">Liste des permissions</h2>
+      <span class="badge" *ngIf="permissions?.length">
+        {{ permissions.length }} permission(s)
+      </span>
+    </div>
+
+    <div *ngIf="isLoading" class="loading">
+      Chargement des permissions...
+    </div>
+
+    <div *ngIf="!isLoading && (!permissions || permissions.length === 0)" class="empty-state">
+      Aucune permission définie pour le moment.
+    </div>
+
+    <!-- Vue tableau (desktop) -->
+    <div class="table-wrapper" *ngIf="!isLoading && permissions && permissions.length > 0">
+      <table class="table-permissions">
+        <thead>
+        <tr>
+          <th>Code</th>
+          <th>Libellé</th>
+          <th>Créée le</th>
+          <th class="th-actions">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let p of permissions">
+          <td>{{ p.code }}</td>
+          <td>{{ p.label }}</td>
+          <td>{{ p.createdAt | date:'short' }}</td>
+          <td class="td-actions">
+            <button type="button" class="btn btn-danger btn-sm" (click)="openDeleteModal(p)">
+              Supprimer
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Vue cartes (mobile) -->
+    <div class="cards-mobile" *ngIf="!isLoading && permissions && permissions.length > 0">
+      <div class="perm-card" *ngFor="let p of permissions">
+        <div class="perm-main">
+          <div class="perm-label">{{ p.label }}</div>
+          <div class="perm-meta">Code : {{ p.code }}</div>
+          <div class="perm-meta">Créée le {{ p.createdAt | date:'short' }}</div>
+        </div>
+        <div class="perm-actions">
+          <button type="button" class="btn btn-danger btn-sm" (click)="openDeleteModal(p)">
+            Supprimer
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- MODALE DE SUPPRESSION -->
+<div class="overlay" *ngIf="showDeleteModal" (click)="cancelDelete()"></div>
+<div class="delete-modal" *ngIf="showDeleteModal">
+  <h2 class="delete-title">Confirmer la suppression</h2>
+  <p class="delete-message">
+    Êtes-vous sûr de vouloir supprimer la permission <br/>
+    <strong>"{{ permissionToDelete?.label }}"</strong> ?<br />
+    Cette action est irréversible.
+  </p>
+  <div class="delete-actions">
+    <button class="btn-cancel-delete" (click)="cancelDelete()">Annuler</button>
+    <button class="btn-confirm-delete" (click)="confirmDelete()">Supprimer</button>
+  </div>
+</div>
+
+<!-- TOAST NOTIFICATION -->
+<div class="toast-container" *ngIf="toastMessage">
+  <div class="toast" [ngClass]="'toast-' + toastType">
+    <svg *ngIf="toastType === 'success'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+    <svg *ngIf="toastType === 'error'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+    <svg *ngIf="toastType === 'delete'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+    <span>{{ toastMessage }}</span>
+  </div>
+</div>
