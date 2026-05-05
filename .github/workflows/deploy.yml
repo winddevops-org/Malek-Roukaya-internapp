@@ -1,0 +1,9 @@
+name: Wind App CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  ci:
+    uses: khaoulahamza/devops-templates/.github/workflows/deploy.yml@main
