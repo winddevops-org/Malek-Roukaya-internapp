@@ -7,4 +7,3 @@ on:
 jobs:
   deploy:
     uses: khaoulahamza/devops-templates/.github/workflows/deploy.yml@main
-    # plus besoin de secrets ni inputs
