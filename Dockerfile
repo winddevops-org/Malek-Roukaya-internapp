@@ -1,17 +1,17 @@
-# ---- Étape 1 : Build ---
+ok je garde mon docker file ? # ---- Étape 1 : Build ---
 FROM node:20-alpine AS build
 WORKDIR /app
 
-# Copier les dépendances
+# Optimisation : copier seulement package.json d'abord
 COPY src/package*.json ./
 
-# Installer avec optimisation
+# Utiliser npm install avec cache
 RUN npm install --prefer-offline --no-audit --progress=false
 
-# Copier le code source
+# Copier le reste du code
 COPY src/ .
 
-# Build Angular (le dossier de sortie sera /app/dist)
+# Build avec optimisation mémoire
 RUN node --max_old_space_size=2048 ./node_modules/@angular/cli/bin/ng build --prod --optimization
 
 # ---- Étape 2 : Serveur Nginx ---
@@ -20,8 +20,7 @@ FROM nginx:stable-alpine
 RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d/
 
-# Copie générique : prend tout ce qui est dans /app/dist
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=build /app/dist/wind-dev-ops-plattform /usr/share/nginx/html
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
