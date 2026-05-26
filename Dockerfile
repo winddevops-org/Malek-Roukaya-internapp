@@ -20,7 +20,11 @@ FROM nginx:stable-alpine
 RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d/
 
+<<<<<<< HEAD
 # Copier les fichiers statiques Angular 17+
+=======
+# Copier les fichiers statiques
+>>>>>>> 314d9d2 (fix: Angular 17+ output path dist/proj_ang/browser)
 COPY --from=build /app/dist/proj_ang/browser /usr/share/nginx/html
 
 EXPOSE 80
