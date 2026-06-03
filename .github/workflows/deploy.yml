@@ -1,9 +1,8 @@
-name: Wind App CI/CD
-
+name: CI/CD
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch:   # permet un déclenchement manuel depuis l'onglet Actions
+  workflow_dispatch:
 
 jobs:
   deploy:
