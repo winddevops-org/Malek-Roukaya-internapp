@@ -7,7 +7,7 @@
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
-          "skipTests":true
+          "skipTests": true
         }
       },
       "root": "",
@@ -98,7 +98,9 @@
             "styles": [
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [],
+            "browsers": "ChromeHeadlessNoSandbox",
+            "karmaConfig": "karma.conf.js"
           }
         }
       }
