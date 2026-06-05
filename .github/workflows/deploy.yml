@@ -3,9 +3,8 @@ on:
   push:
     branches: [ "main" ]
   workflow_dispatch:
-
 jobs:
   deploy:
-    uses: khaoulahamza/devops-templates/.github/workflows/deploy.yml@main
+    uses: winddevops-org/devops-templates/.github/workflows/deploy.yml@main
     secrets:
       GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
