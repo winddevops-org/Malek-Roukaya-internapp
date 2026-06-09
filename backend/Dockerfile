@@ -9,7 +9,8 @@ RUN mvn clean package -DskipTests -B
 # ---- Étape 2 : Runtime ----
 FROM 192.168.1.239:8085/selfkhaoula/maven:3.9-eclipse-temurin-17
 WORKDIR /app
-RUN addgroup -S spring && adduser -S spring -G spring
+# Utiliser groupadd et useradd (compatibles Debian/Ubuntu)
+RUN groupadd -r spring && useradd -r -g spring spring
 USER spring:spring
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
