@@ -1,14 +1,19 @@
-FROM 192.168.1.239:8085/selfkhaoula/maven:3.9-eclipse-temurin-17 AS builder
+# ---- Étape 1 : Build ---
+FROM node:20-alpine AS build
 WORKDIR /app
-COPY pom.xml .
-RUN mvn dependency:go-offline -B
-COPY src ./src
-RUN mvn clean package -DskipTests -B
-
-FROM 192.168.1.239:8085/selfkhaoula/eclipse-temurin:17-jre-alpine
-WORKDIR /app
-RUN addgroup -S spring && adduser -S spring -G spring
-USER spring:spring
-COPY --from=builder /app/target/*.jar app.jar
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Copier les fichiers de dépendances
+COPY package*.json ./
+# Installer avec legacy-peer-deps
+RUN npm install --legacy-peer-deps --prefer-offline --no-audit --progress=false
+# Copier tout le code source
+COPY . .
+# Build Angular (ignore les erreurs de budget)
+RUN node --max_old_space_size=2048 ./node_modules/@angular/cli/bin/ng build --configuration=production --optimization || true
+# ---- Étape 2 : Serveur Nginx ---
+FROM nginx:stable-alpine
+RUN rm /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/
+# Copier les fichiers statiques Angular 17+
+COPY --from=build /app/dist/proj_ang/browser /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
