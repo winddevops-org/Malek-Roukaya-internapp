@@ -1,12 +1,16 @@
-FROM node:20-alpine AS build
+# ---- Étape 1 : Build ----
+FROM 192.168.1.239:8085/selfkhaoula/maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
-COPY package*.json ./
-RUN npm install --legacy-peer-deps --prefer-offline --no-audit --progress=false
-COPY . .
-RUN node --max_old_space_size=2048 ./node_modules/@angular/cli/bin/ng build --configuration=production --optimization || true
-FROM nginx:stable-alpine
-RUN rm /etc/nginx/conf.d/default.conf
-COPY nginx.conf /etc/nginx/conf.d/
-COPY --from=build /app/dist/proj_ang/browser /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+COPY src ./src
+RUN mvn clean package -DskipTests -B
+
+# ---- Étape 2 : Runtime ----
+FROM 192.168.1.239:8085/selfkhaoula/maven:3.9-eclipse-temurin-17
+WORKDIR /app
+RUN addgroup -S spring && adduser -S spring -G spring
+USER spring:spring
+COPY --from=build /app/target/*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
