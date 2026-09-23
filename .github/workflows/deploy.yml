@@ -1,7 +1,6 @@
 name: Deploy Template Hybrid CI/CD
 
 on:
-  # AJOUT : Pour le déclenchement manuel avec menu déroulant dans l'interface GitHub
   workflow_dispatch:
     inputs:
       environment:
@@ -9,12 +8,10 @@ on:
         required: true
         type: choice
         default: 'staging'
-        choices:
+        options: 
           - staging
           - production
-          # Tu peux ajouter d'autres environnements ici si nécessaire (ex: local, on-premise)
 
-  # CONSERVÉ : Pour que ce workflow puisse toujours être appelé par d'autres workflows (CI/CD)
   workflow_call:
     inputs:
       environment:
@@ -78,7 +75,7 @@ jobs:
 
           echo "mode=${MODE}" >> "$GITHUB_OUTPUT"
           {
-            echo "##  Détection du mode de déploiement"
+            echo "## 🔍 Détection du mode de déploiement"
             echo ""
             echo "| Élément | Valeur |"
             echo "|---|---|"
