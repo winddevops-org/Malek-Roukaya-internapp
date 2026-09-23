@@ -1,96 +1,22 @@
-name: Deploy Template Hybrid CI/CD
+name: Trigger Deploy
+
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       environment:
+        description: 'Environnement cible'
         required: true
-        type: string
-    secrets:
-      GITOPS_TOKEN:
-        required: true
-      ACR_USERNAME:
-        required: true
-      ACR_PASSWORD:
-        required: true
+        type: choice
+        default: 'staging'
+        options:
+          - staging
+          - production
+
 jobs:
-  detect:
-    runs-on: self-hosted
-    outputs:
-      mode: ${{ steps.detect.outputs.mode }}
-    steps:
-      - name: Clean workspace
-        run: |
-          sudo git clean -ffdx 2>/dev/null || \
-          sudo find "${{ github.workspace }}" -mindepth 1 -delete 2>/dev/null || true
-      - uses: actions/checkout@v4
-      - name: Detect mono vs micro
-        id: detect
-        run: |
-          SERVICE_COUNT_ROOT=0
-          for dir in */; do
-            dir="${dir%/}"
-            case "${dir}" in frontend|backend|.github|.git|node_modules|target|dist|docs|scripts|config|helm|k8s) continue ;; esac
-            [ -f "${dir}/Dockerfile" ] && SERVICE_COUNT_ROOT=$((SERVICE_COUNT_ROOT + 1))
-          done
-          SERVICE_COUNT_BACKEND=0
-          if [ -d "backend" ]; then
-            for dir in backend/*/; do
-              [ -d "${dir}" ] || continue
-              dir="${dir%/}"; dir="${dir##*/}"
-              [ -f "backend/${dir}/Dockerfile" ] && SERVICE_COUNT_BACKEND=$((SERVICE_COUNT_BACKEND + 1))
-            done
-          fi
-          TOTAL_SERVICES=$((SERVICE_COUNT_ROOT + SERVICE_COUNT_BACKEND))
-
-          HAS_DUAL="false"
-          { { [ -f "frontend/Dockerfile" ] || [ -f "Dockerfile.frontend" ]; } && \
-            { [ -f "backend/Dockerfile" ]  || [ -f "Dockerfile.backend" ];  }; } && HAS_DUAL="true"
-
-          if [ "${HAS_DUAL}" = "false" ] && [ -f "Dockerfile" ] && [ "${TOTAL_SERVICES}" -eq 0 ]; then
-            TOTAL_SERVICES=1
-          fi
-
-          echo " Total services: ${TOTAL_SERVICES}, Dual: ${HAS_DUAL}"
-
-          if [ "${HAS_DUAL}" = "true" ]; then
-            MODE="mono"
-          elif [ "${TOTAL_SERVICES}" -ge 1 ]; then
-            MODE="micro"
-          else
-            MODE="mono"
-          fi
-
-          echo "mode=${MODE}" >> "$GITHUB_OUTPUT"
-          {
-            echo "## 🔍 Détection du mode de déploiement"
-            echo ""
-            echo "| Élément | Valeur |"
-            echo "|---|---|"
-            echo "| Services détectés à la racine | ${SERVICE_COUNT_ROOT} |"
-            echo "| Services détectés dans backend/ | ${SERVICE_COUNT_BACKEND} |"
-            echo "| Total services | ${TOTAL_SERVICES} |"
-            echo "| Structure dual (frontend + backend) | ${HAS_DUAL} |"
-            echo "| **Mode choisi** | **${MODE}** |"
-            echo "| Environnement cible | ${{ inputs.environment }} |"
-          } >> "$GITHUB_STEP_SUMMARY"
-  mono:
-    needs: detect
-    if: needs.detect.outputs.mode == 'mono'
-    uses: winddevops-org/devops-templates/.github/workflows/mono-pipeline.yml@main
+  call-router:
+    uses: winddevops-org/devops-templates/.github/workflows/deploy.yml@main
     with:
       environment: ${{ inputs.environment }}
-      ingress_domain: ${{ vars.INGRESS_DOMAIN }}
-    secrets:
-      GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
-      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
-      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
-  micro:
-    needs: detect
-    if: needs.detect.outputs.mode == 'micro'
-    uses: winddevops-org/devops-templates/.github/workflows/micro-pipeline.yml@main
-    with:
-      environment: ${{ inputs.environment }}
-      ingress_domain: ${{ vars.INGRESS_DOMAIN }}
     secrets:
       GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
       ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
