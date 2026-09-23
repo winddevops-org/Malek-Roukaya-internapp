@@ -1,19 +1,5 @@
 name: Deploy Template Hybrid CI/CD
-
 on:
-  # 1. POUR LE MENU DÉROULANT MANUEL
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environnement cible pour le déploiement'
-        required: true
-        type: choice
-        default: 'staging'
-        options:
-          - staging
-          - production
-
-  # 2. POUR L'APPEL PAR D'AUTRES WORKFLOWS
   workflow_call:
     inputs:
       environment:
@@ -26,7 +12,6 @@ on:
         required: true
       ACR_PASSWORD:
         required: true
-
 jobs:
   detect:
     runs-on: self-hosted
@@ -88,11 +73,9 @@ jobs:
             echo "| **Mode choisi** | **${MODE}** |"
             echo "| Environnement cible | ${{ inputs.environment }} |"
           } >> "$GITHUB_STEP_SUMMARY"
-
   mono:
     needs: detect
     if: needs.detect.outputs.mode == 'mono'
-    environment: ${{ inputs.environment }} # <--- C'EST CETTE LIGNE QUI DÉCLENCHE L'APPROBATION
     uses: winddevops-org/devops-templates/.github/workflows/mono-pipeline.yml@main
     with:
       environment: ${{ inputs.environment }}
@@ -101,11 +84,9 @@ jobs:
       GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
       ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
       ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
-
   micro:
     needs: detect
     if: needs.detect.outputs.mode == 'micro'
-    environment: ${{ inputs.environment }} # <--- C'EST CETTE LIGNE QUI DÉCLENCHE L'APPROBATION
     uses: winddevops-org/devops-templates/.github/workflows/micro-pipeline.yml@main
     with:
       environment: ${{ inputs.environment }}
