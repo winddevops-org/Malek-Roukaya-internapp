@@ -19,7 +19,7 @@ jobs:
     uses: winddevops-org/devops-templates/.github/workflows/mono-pipeline.yml@main
     with:
       environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'staging' }}
-      ingress_domain: ${{ vars.INGRESS_DOMAIN }} # <-- LIGNE AJOUTÉE POUR TRANSMETTRE LA VARIABLE
+      ingress_domain: ${{ vars.INGRESS_DOMAIN }}
     secrets:
       GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
       ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
