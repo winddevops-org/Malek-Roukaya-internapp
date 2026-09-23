@@ -1,5 +1,20 @@
 name: Deploy Template Hybrid CI/CD
+
 on:
+  # AJOUT : Pour le déclenchement manuel avec menu déroulant dans l'interface GitHub
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environnement cible pour le déploiement'
+        required: true
+        type: choice
+        default: 'staging'
+        choices:
+          - staging
+          - production
+          # Tu peux ajouter d'autres environnements ici si nécessaire (ex: local, on-premise)
+
+  # CONSERVÉ : Pour que ce workflow puisse toujours être appelé par d'autres workflows (CI/CD)
   workflow_call:
     inputs:
       environment:
@@ -12,6 +27,7 @@ on:
         required: true
       ACR_PASSWORD:
         required: true
+
 jobs:
   detect:
     runs-on: self-hosted
@@ -62,7 +78,7 @@ jobs:
 
           echo "mode=${MODE}" >> "$GITHUB_OUTPUT"
           {
-            echo "## 🔍 Détection du mode de déploiement"
+            echo "##  Détection du mode de déploiement"
             echo ""
             echo "| Élément | Valeur |"
             echo "|---|---|"
@@ -73,6 +89,7 @@ jobs:
             echo "| **Mode choisi** | **${MODE}** |"
             echo "| Environnement cible | ${{ inputs.environment }} |"
           } >> "$GITHUB_STEP_SUMMARY"
+
   mono:
     needs: detect
     if: needs.detect.outputs.mode == 'mono'
@@ -84,6 +101,7 @@ jobs:
       GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
       ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
       ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
+
   micro:
     needs: detect
     if: needs.detect.outputs.mode == 'micro'
